@@ -1,7 +1,7 @@
 === Widget Manager Light ===
 Contributors: OTWthemes
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQH6CMTR42KS2
-Tags: hide widgets, display widget, sidebar, widget area, custom layout, relevant content
+Tags: hide widgets, display widget, widget, sidebar, widget area, custom layout, relevant content, sidebars, widgets
 Requires at least: 3.0
 Tested up to: 3.4
 Stable tag: 1.0
