@@ -24,6 +24,7 @@ Upgrade to the full version of [Sidebar and Widget Manager](http://otwthemes.com
 [Video overview](http://www.youtube.com/watch?v=WT9UK1eX4C8)
 
 How Widget Manager Light works:
+
 * Go to Appearance -> Widgets
 * Select a Widget in any sidebar
 * Click on the Set Visibility button
