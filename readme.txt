@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: hide widgets, display widget, widget, sidebar, widget area, custom layout, relevant content, sidebars, widgets
 Requires at least: 3.0
 Tested up to: 3.4
-Stable tag: 1.0
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,5 +52,11 @@ Please refer to [online documentation page](http://otwthemes.com/online-document
 
 == Changelog ==
 
+= 1.2 =
+
+* Fix: Loading path
+* Fix: Plugin's dirname and url paths
+
 = 1.0 =
+
 * Initial release

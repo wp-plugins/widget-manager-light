@@ -17,7 +17,7 @@ if( !$sidebar || !$widget ){
 	wp_die( __( 'Invalid sidebar or widget' ) );
 }
 
-global $wp_registered_sidebars, $wp_int_items;
+global $wp_registered_sidebars, $wp_int_items, $otw_wml_plugin_url;
 
 
 //validate that this sidebar exists
@@ -300,8 +300,8 @@ foreach( $wp_int_items as $wp_item_type => $wp_item_data ){
 <div class="otw_dialog_content" id="otw_dialog_content">
 
 <div class="d_info">
-	<p><img src="<?php echo plugins_url( 'otw_wml/images/selected.gif' );?>" alt=""/><?php _e('Means the widget will be displayed on that page, post, category, etc.');?></p>
-	<p><img src="<?php echo plugins_url( 'otw_wml/images/not_selected.gif' );?>" alt=""/><?php _e('Means  the widget will be hidden form that page, post, category, etc');?></p>
+	<p><img src="<?php echo $otw_wml_plugin_url.'/images/selected.gif' ?>" alt=""/><?php _e('Means the widget will be displayed on that page, post, category, etc.');?></p>
+	<p><img src="<?php echo $otw_wml_plugin_url.'/images/not_selected.gif' ?>" alt=""/><?php _e('Means  the widget will be hidden form that page, post, category, etc');?></p>
 </div>
 <?php if( is_array( $wp_int_items ) && count( $wp_int_items ) ){?>
 	

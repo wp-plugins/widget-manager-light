@@ -161,15 +161,6 @@ if( !function_exists( 'otw_get_current_object' ) ){
 			
 			$object_id = $query_object->ID;
 			
-			if( is_page_template() ){
-				$template_string = get_page_template();
-				$template_parts = explode( "/", $template_string );
-				$o_id = $template_parts[ count( $template_parts ) - 1 ];
-				if( $o_id != 'page.php' ){
-					$objects[1][0] = 'pagetemplate';
-					$objects[1][1] = $o_id;
-				}
-			}
 			
 		}elseif( is_single() ){
 			$post_type = get_post_type();
@@ -293,11 +284,6 @@ if( !function_exists( 'otw_get_current_object' ) ){
 		if( is_attachment() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'attachment';
-			$object_key++;
-		}
-		if( is_page() ){
-			$objects[ $object_key ][0] = 'templatehierarchy';
-			$objects[ $object_key ][1] = 'page';
 			$object_key++;
 		}
 		return $objects;
