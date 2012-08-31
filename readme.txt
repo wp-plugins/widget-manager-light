@@ -56,6 +56,7 @@ Please refer to [online documentation page](http://otwthemes.com/online-document
 
 * Fix: Loading path
 * Fix: Plugin's dirname and url paths
+* Fix: Compatibility on a single WP installation for Widgetize Pages Light, Sidebar Manager Light, Widget Manager Light
 
 = 1.0 =
 
