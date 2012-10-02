@@ -22,7 +22,7 @@ The interface is very intuitive and requires no coding knowledge at all.
 Upgrade to the full version of [Sidebar and Widget Manager](http://otwthemes.com/product/sidebar-widget-manager-for-wordpress/?utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml) |
 [Demo site](http://otwthemes.com/demos/sidebar-widget-manager?utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml) | 
 [Video overview](http://www.youtube.com/watch?v=WT9UK1eX4C8)
-Sidebar and Widget Manager has easy column interface for Widgetizing Pages - [Video](http://otwthemes.com/demos/sidebar-widget-manager/#v_widgetize) | [Screenshots](http://otwthemes.com/demos/sidebar-widget-manager/#s_widgetize)
+Sidebar and Widget Manager has easy column [interface for Widgetizing Pages](http://otwthemes.com/widgetizing-pages-in-wordpress-has-never-been-easier/?utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml)
 
 How Widget Manager Light works:
 
