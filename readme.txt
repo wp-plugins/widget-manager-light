@@ -3,8 +3,8 @@ Contributors: OTWthemes
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQH6CMTR42KS2
 Tags: hide widgets, display widget, widget, sidebar, widget area, custom layout, relevant content, sidebars, widgets
 Requires at least: 3.0
-Tested up to: 3.4
-Stable tag: 1.2
+Tested up to: 3.5
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Get control over widgets visibility. Show or hide widgets. Display relevant cont
 
 == Description ==
 
-Every widget can now be display on or hidden from one or few pages. Display relevent content on your pages. 
+Every widget can now be display on or hidden from one or few pages. Display relevent content on your pages, posts, categories, tags, archives, custom post types, custom taxonomies, page templates, WordPress service pages, etc.. 
 
 This plugin works with all widgedets - WordPress default and any custom added widget.
 
@@ -29,7 +29,7 @@ How Widget Manager Light works:
 * Go to Appearance -> Widgets
 * Select a Widget in any sidebar
 * Click on the Set Visibility button
-* Select pages to display on or hide from 
+* Select where to display on or hide from 
  
 Follow on [Twitter](http://twitter.com/OTWthemes) |
 [Facebook](http://www.facebook.com/pages/OTWthemes/250294028325665) |
@@ -52,6 +52,13 @@ Please refer to [online documentation page](http://otwthemes.com/online-document
 3. Select pages to display on
 
 == Changelog ==
+
+= 1.3 =
+
+Manually updating to versiion 1.3. requires deactivation of the old version first. If you are using the wordpress updater it will do all the job for you. 
+* Added: Full support for posts, categories, tags, archives, custom post types, custom taxonomies, page templates, WordPress service pages, etc.
+* Added: Convinient filters
+* Updated: Activation method and replacement functionality
 
 = 1.2 =
 

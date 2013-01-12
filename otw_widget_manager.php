@@ -4,11 +4,18 @@ Plugin Name: Widget Manager Light
 Plugin URI: http://otwthemes.com/?utm_source=wp.org&utm_medium=admin&utm_content=site&utm_campaign=wml
 Description:  Get control over widgets visibility. You can now customize each page with specific widgets that are relative to the content on that page. No coding required.
 Author: OTWthemes.com
-Version: 1.2
+Version: 1.3
 Author URI: http://otwthemes.com/?utm_source=wp.org&utm_medium=admin&utm_content=site&utm_campaign=wml
 */
 $wp_int_items = array(
-	'page'              => array( array(), __( 'Pages' ), __( 'All pages' ) )
+	'page'              => array( array(), __( 'Pages' ), __( 'All pages' ) ),
+	'post'              => array( array(), __( 'Posts', 'otw_sbm' ), __( 'All posts', 'otw_sbm' ) ),
+	'postsincategory'   => array( array(), __( 'All posts from category', 'otw_sbm' ), __( 'All categories', 'otw_sbm' ) ),
+	'category'          => array( array(), __( 'Categories', 'otw_sbm' ), __( 'All categories', 'otw_sbm' ) ),
+	'posttag'           => array( array(), __( 'Tags', 'otw_sbm' ), __( 'All tags', 'otw_sbm' ) ),
+	'templatehierarchy' => array( array(), __( 'Template Hierarchy', 'otw_sbm'), __( 'All templates', 'otw_sbm' ) ),
+	'pagetemplate'      => array( array(), __( 'Page Templates', 'otw_sbm' ), __( 'All page templates', 'otw_sbm' ) ),
+	'archive'           => array( array(), __( 'Archives', 'otw_sbm' ), __( 'All archives', 'otw_sbm' ) )
 );
 
 global $otw_plugin_options;
@@ -17,7 +24,6 @@ $otw_plugin_options = get_option( 'otw_plugin_options' );
 
 $otw_wml_plugin_url = plugins_url( substr( dirname( __FILE__ ), strlen( dirname( dirname( __FILE__ ) ) ) ) );
 
-include_once( plugin_dir_path( __FILE__ ).'/include/otw_plugin_activation.php' );
 require_once( plugin_dir_path( __FILE__ ).'/include/otw_functions.php' );
 
 
@@ -49,6 +55,11 @@ function otw_wml_admin_actions(){
 	add_menu_page('Widget Manager', 'Widget Manager', 'manage_options', 'otw-wml', 'otw_wml_options', $otw_wml_plugin_url.'/images/application_side_boxes.png' );
 	add_submenu_page( 'otw-wml', 'Options', 'Options', 'manage_options', 'otw-wml', 'otw_wml_options' );
 	add_submenu_page( 'otw-wml', 'Info', 'Info', 'manage_options', 'otw-wml-info', 'otw_wml_info' );
+}
+
+function otw_wml_items_by_type(){
+	require_once( 'include/otw_wml_items_by_type.php' );
+	die;
 }
 
 /** include needed javascript scripts based on current page
@@ -84,6 +95,7 @@ function enqueue_wml_styles( $requested_page ){
  */
 add_action('admin_menu', 'otw_wml_admin_actions');
 add_action('admin_notices', 'otw_wml_admin_notice');
+add_filter('sidebars_widgets', 'otw_sidebars_widgets');
 
 /**
  * include plugin js and css.
@@ -94,14 +106,10 @@ add_action('admin_print_styles', 'enqueue_wml_styles' );
 //register some admin actions
 if( is_admin() ){
 	add_action( 'wp_ajax_otw_wml_widget_dialog', 'otw_wml_ajax_widget_dialog' );
+	add_action( 'wp_ajax_otw_wml_items_by_type', 'otw_wml_items_by_type' );
 }
 /** 
  *call init plugin function
  */
 add_action('init', 'otw_wml_plugin_init', 100 );
-
-include_once( plugin_dir_path( __FILE__ ).'/include/otw_plugin_activation.php' );
-
-register_activation_hook(  __FILE__,'otw_wml_plugin_activate');
-register_deactivation_hook(  __FILE__,'otw_wml_plugin_deactivate');
 ?>

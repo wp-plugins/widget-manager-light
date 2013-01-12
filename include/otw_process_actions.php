@@ -73,7 +73,7 @@ if( isset( $_POST['otw_wml_action'] ) ){
 						//remove sidebar from widget
 						$widgets = get_option( 'sidebars_widgets' );
 						
-						if( $widgets[ $otw_sidebar_id ] ){
+						if( isset( $widgets[ $otw_sidebar_id ] ) ){
 							
 							$new_widgets = array();
 							foreach( $widgets as $sidebar_key => $widget ){

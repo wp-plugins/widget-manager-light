@@ -1,4 +1,4 @@
-div.postbox div.closed{
+div.postbox div.otw_closed{
 	display: none;
 }
 div.otw_dialog_content div.postbox{
@@ -58,6 +58,13 @@ div.d_info p img{
 	vertical-align: middle;
 	margin-right: 5px;
 }
+div.items_info_app{
+	color: #666666;
+	font-style: normal;
+	margin-left: 0px;
+	padding-bottom: 5px;
+	border-bottom: 1px solid #CCC;
+}
 td.sidebar_active{ text-transform: uppercase; color: #008000; font-weight: bold; }
 td.sidebar_inactive{ text-transform: uppercase; color: #D00000; font-weight: bold; }
 div.all_vis_lnks{
@@ -104,4 +111,7 @@ div.sitems div.more_items{
 	clear: both;
 	color: #cdcdcd;
 	padding: 2px;
+}
+div.visupdated{
+	margin: 10px 0;
 }

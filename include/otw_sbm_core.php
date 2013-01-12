@@ -1,4 +1,52 @@
 <?php
+if( !function_exists( 'otw_sbm_index' ) ){
+	function otw_sbm_index( $index, $sidebars_widgets ){
+		
+		global $wp_registered_sidebars, $otw_replaced_sidebars;
+		
+		if( isset( $otw_replaced_sidebars[ $index ] ) ){//we have set replacemend.
+		
+			$requested_objects = otw_get_current_object();
+			
+			//check if the new sidebar is valid for the current requested resource
+			foreach( $otw_replaced_sidebars[ $index ] as $repl_sidebar ){
+				
+				if( isset( $wp_registered_sidebars[ $repl_sidebar ] ) ){
+					
+					if( $wp_registered_sidebars[ $repl_sidebar ]['status'] == 'active'  ){
+						
+						foreach( $requested_objects as $objects ){
+						
+							list( $object, $object_id ) = $objects;
+						
+							if( $object && $object_id ){
+								
+								$tmp_index = otw_validate_sidebar_index( $repl_sidebar, $object, $object_id );
+								
+								if( $tmp_index ){
+									if ( !empty($sidebars_widgets[$tmp_index]) ){
+										$sidebars_widgets[$tmp_index] = otw_filter_siderbar_widgets( $tmp_index, $sidebars_widgets );
+										
+										if( count( $sidebars_widgets[$tmp_index] ) ){
+											$index = $tmp_index;
+											break 2;
+										}
+									}
+								}
+								
+							}//end hs object and object id
+							
+						}//end loop requested objects
+						
+					}
+				}
+			}
+		}
+		
+		return $index;
+	}
+}
+
 /** check if sidebar is active
   * @param string
   * @return string
@@ -556,6 +604,9 @@ if( !function_exists( 'otw_wp_item_attribute' ) ){
 			
 			case 'ID':
 					switch( $item_type ){
+						case 'postsincategory':
+								return $object->cat_ID;
+							break;
 						case 'category':
 								return $object->cat_ID;
 							break;
@@ -572,6 +623,7 @@ if( !function_exists( 'otw_wp_item_attribute' ) ){
 								if( preg_match( "/^ctx_(.*)$/", $item_type, $matches ) ){
 									return $object->term_id;
 								}
+								
 								return $object->ID;
 							break;
 					}
@@ -594,6 +646,205 @@ if( !function_exists( 'otw_wp_item_attribute' ) ){
 					}
 				break;
 		}
+	}
+}
+
+/** sidebar widgets hook
+  *  @param array
+  *  @return array
+  */
+if( !function_exists( 'otw_sidebars_widgets' ) ){
+	function otw_sidebars_widgets( $sidebars_widgets ){
+		
+		global $otw_registered_sidebars, $otw_replaced_sidebars;
+		
+		if( !is_array( $otw_replaced_sidebars ) || !count( $otw_replaced_sidebars ) ){
+		//	return $sidebars_widgets;
+		}
+		
+		if( is_admin() ){
+			return $sidebars_widgets;
+		}
+		
+		foreach( $sidebars_widgets as $index => $widgets ){
+			
+			
+			$tmp_index = otw_sbm_index( $index, $sidebars_widgets );
+			
+			if ( !empty($sidebars_widgets[$tmp_index]) ){
+				$sidebars_widgets[$index] = otw_filter_siderbar_widgets( $tmp_index, $sidebars_widgets );
+			}else{
+				$sidebars_widgets[$index] = $sidebars_widgets[$tmp_index];
+			}
+			
+		}
+		return $sidebars_widgets;
+	}
+}
+
+/**
+ *  Load items by given params
+ *  @param array attribute / type
+ *  @return array
+ **/
+if (!function_exists( "otw_sbm_get_filtered_items" )){
+	function otw_sbm_get_filtered_items( $type, $filter, $sidebar_id, $displayed_items = 20, $id_list = array() ){
+	
+		global $string_filter, $id_list_filter;
+		
+		$string_filter = $filter;
+		$id_list_filter = $id_list;
+		
+		switch( $type )
+		{
+			case 'page':
+			case 'post':
+					$args = array();
+					$args['post_type']      = $type;
+					$args['posts_per_page'] = -1;
+					if( count( $id_list_filter ) ){
+						$args['post__in']       = $id_list_filter;
+					}
+					if( $string_filter ){
+						add_filter( 'posts_where', 'otw_sbm_post_by_title' );
+					}
+					
+					$the_query = new WP_Query( $args );
+					
+					$all_items = count( $the_query->posts );
+					
+					$args['posts_per_page'] = ($displayed_items)?$displayed_items:-1;
+					$args['orderby']        = 'ID';
+					$args['order']          = 'DESC';
+					
+					$the_query = new WP_Query( $args );
+					
+					if( $string_filter ){
+						remove_filter('posts_where', 'otw_sbm_post_by_title');
+					}
+					
+					return array( $all_items, $the_query->posts );
+				break;
+			case 'category':
+			case 'postsincategory':
+					//first get all
+					$args = array();
+					$args['type']            = 'post';
+					$args['hide_empty']      = 0;
+					$args['number']          = 0;
+					
+					if( count( $id_list_filter ) ){
+						sort( $id_list_filter );
+						$args['include']  = $id_list_filter;
+					}
+					
+					if( $string_filter ){
+						$args['search'] = $string_filter;
+					}
+					
+					$all_items = count( get_categories( $args ) );
+					
+					$args['number']          = ($displayed_items)?$displayed_items:0;
+					$args['orderby']         = 'name';
+					$args['order']           = 'ASC';
+					
+					return array( $all_items, get_categories( $args ) );
+				break;
+			case 'posttag':
+					$args = array();
+					$args['hide_empty']      = 0;
+					$args['number']          = 0;
+					
+					if( count( $id_list_filter ) ){
+						sort( $id_list_filter );
+						$args['include']  = $id_list_filter;
+					}
+					
+					if( $string_filter ){
+						$args['search'] = $string_filter;
+					}
+					
+					$all_items = count( get_terms( 'post_tag', $args ) );
+					
+					$args['number']          = ($displayed_items)?$displayed_items:0;
+					$args['orderby']         = 'name';
+					$args['order']           = 'ASC';
+					
+					return array( $all_items, get_terms( 'post_tag', $args ) );
+				break;
+			case 'customposttype':
+			case 'templatehierarchy':
+			case 'pagetemplate':
+			case 'archive':
+					$items = otw_get_wp_items( $type );
+					return array( count( $items ), $items );
+				break;
+			default:
+					
+					if( preg_match( "/^cpt_(.*)$/", $type, $matches ) ){
+						
+						$args = array();
+						$args['post_type']      = $matches[1];
+						$args['posts_per_page'] = -1;
+						
+						if( count( $id_list_filter ) ){
+							$args['post__in']       = $id_list_filter;
+						}
+						
+						if( $string_filter ){
+							add_filter( 'posts_where', 'otw_sbm_post_by_title' );
+						}
+						$the_query = new WP_Query( $args );
+						
+						$all_items = count( $the_query->posts );
+						
+						$args['posts_per_page'] = ($displayed_items)?$displayed_items:-1;
+						$args['orderby']        = 'ID';
+						$args['order']          = 'DESC';
+						
+						$the_query = new WP_Query( $args );
+						
+						if( $string_filter ){
+							remove_filter('posts_where', 'otw_sbm_post_by_title');
+						}
+						
+						return array( $all_items, $the_query->posts );
+					}elseif( preg_match( "/^ctx_(.*)$/", $type, $matches ) ){
+						
+						$args = array();
+						$args['hide_empty']      = 0;
+						$args['number']          = 0;
+						
+						if( count( $id_list_filter ) ){
+							sort( $id_list_filter );
+							$args['include']  = $id_list_filter;
+						}
+						
+						if( $string_filter ){
+							$args['search'] = $string_filter;
+						}
+						
+						$all_items = count( get_terms( $matches[1], $args ) );
+						
+						$args['number']          = ($displayed_items)?$displayed_items:0;
+						$args['orderby']         = 'name';
+						$args['order']           = 'ASC';
+						
+						return array( $all_items, get_terms( $matches[1], $args ) );
+					}
+				break;
+		}
+		
+		return array();
+	}
+}
+if (!function_exists( "otw_sbm_post_by_title" )){
+	function otw_sbm_post_by_title( $query ){
+		
+		global $string_filter, $id_list_filter;
+		
+		$query .= " AND post_title LIKE '%".$string_filter."%'";
+		return $query;
 	}
 }
 ?>

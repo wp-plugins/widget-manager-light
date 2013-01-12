@@ -68,7 +68,6 @@ if( isset( $_POST['otw_action'] ) && in_array( $_POST['otw_action'], array( 'vis
 			$otw_widget_settings[ $sidebar ][ $_POST['item_type'] ]['_otw_wc'][ $widget ] = '';
 			$response = 'none';
 		}else{
-			$otw_widget_settings[ $sidebar ][ $_POST['item_type'] ] = array();
 			$otw_widget_settings[ $sidebar ][ $_POST['item_type'] ]['_otw_wc'][ $widget ] = $_POST['otw_action'];
 			$response  = $_POST['otw_action'];
 		}
@@ -226,73 +225,18 @@ function otw_sidebar_item_all_class( $type, $sidebar, $widget, $wp_item_type ){
 	echo $class;
 }
 
-/** set item row attributes
- *
- *  @param string $node_tag
- *  @param string $wp_item_type
- *  @param string $sidebar
- *  @param string $widget
- *  @param array $wpItem
- *  @return string
- *
- */
-function otw_sidebar_item_row_attributes( $node_tag, $wp_item_type, $sidebar, $widget, $wpItem ){
-	
-	global $wp_registered_sidebars;
-	
-	$attributes = array();
-	
-	switch( $node_tag )
-	{
-		case 'p':
-				$attributes['class'] = array();
-				if( isset( $wp_registered_sidebars[ $sidebar ]['widgets_settings'][ $wp_item_type ]['_otw_wc'][ $widget ] ) && in_array( $wp_registered_sidebars[ $sidebar ]['widgets_settings'][ $wp_item_type ]['_otw_wc'][ $widget ], array( 'vis', 'invis' ) ) ){
-					if( $wp_registered_sidebars[ $sidebar ]['widgets_settings'][ $wp_item_type ]['_otw_wc'][ $widget ] == 'invis' ){
-						$attributes['class'][] = 'sitem_notselected';
-					}else{
-						$attributes['class'][] = 'sitem_selected';
-					}
-				}
-				elseif( isset( $wp_registered_sidebars[ $sidebar ]['widgets_settings'][ $wp_item_type ][ otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ]['exclude_widgets'][ $widget ] ) ){
-					$attributes['class'][] = 'sitem_notselected';
-				}else{
-					$attributes['class'][] = 'sitem_selected';
-				}
-			break;
-		case 'a':
-				$attributes['class'] = array();
-				$attributes['class'][] = $sidebar.'|'.$widget.'|'.$wp_item_type.'|'.otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem );
-				switch( $wp_item_type ){
-					case 'page':
-					case 'category':
-							if( isset( $wpItem->_sub_level ) && $wpItem->_sub_level ){
-								$attributes['style'][] = 'margin-left: '.( $wpItem->_sub_level * 20  ).'px';
-							}
-						break;
-				}
-			break;
-	}
-	
-	$html = '';
-	foreach( $attributes as $attribute => $att_values ){
-		$html .= ' '.$attribute.'="'.implode( ' ', $att_values ).'"';
-	}
-	
-	echo $html;
-}
-
 
 foreach( $wp_int_items as $wp_item_type => $wp_item_data ){
 	
 	if( is_array( $otw_sidebars ) && array_key_exists( $sidebar, $otw_sidebars ) ){
 	
 		if( isset( $wp_registered_sidebars[ $sidebar ]['validfor'][ $wp_item_type ] )  && count( $wp_registered_sidebars[ $sidebar ]['validfor'][ $wp_item_type ] )){
-			$wp_int_items[ $wp_item_type ][0] = otw_get_wp_items( $wp_item_type );
+			$wp_int_items[ $wp_item_type ][0] = array( 1 );
 		}else{
 			$wp_int_items[ $wp_item_type ][0] = array();
 		}
 	}else{
-		$wp_int_items[ $wp_item_type ][0] = otw_get_wp_items( $wp_item_type );
+		$wp_int_items[ $wp_item_type ][0] = array( 1 );
 	}
 }
 
@@ -302,6 +246,10 @@ foreach( $wp_int_items as $wp_item_type => $wp_item_data ){
 <div class="d_info">
 	<p><img src="<?php echo $otw_wml_plugin_url.'/images/selected.gif' ?>" alt=""/><?php _e('Means the widget will be displayed on that page, post, category, etc.');?></p>
 	<p><img src="<?php echo $otw_wml_plugin_url.'/images/not_selected.gif' ?>" alt=""/><?php _e('Means  the widget will be hidden form that page, post, category, etc');?></p>
+	<div class="updated visupdated">
+		<p><?php _e( 'A selected page template includes all pages using that template.', 'otw_sbm' )?><br />
+		<?php _e( 'Template hierarchy Page includes all pages.', 'otw_sbm' )?></p>
+	</div>
 </div>
 <?php if( is_array( $wp_int_items ) && count( $wp_int_items ) ){?>
 	
@@ -313,18 +261,25 @@ foreach( $wp_int_items as $wp_item_type => $wp_item_data ){
 					<div title="<?php _e('Click to toggle')?>" class="handlediv sitem_toggle"><br></div>
 					<h3 class="hndle sitem_header"><span><?php echo $wp_item_data[1]?></span></h3>
 					
-					<div class="inside sitems<?php if( count( $wp_item_data[0] ) > 15 ){ echo ' mto';}?>">
-						<?php foreach( $wp_item_data[0] as $wpItem ) {?>
-							<?php if( isset( $wp_registered_sidebars[ $sidebar ]['validfor'][ $wp_item_type ][ otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ] ) || isset( $wp_registered_sidebars[ $sidebar ]['validfor'][ $wp_item_type ][ 'all' ] ) || !array_key_exists( $sidebar, $otw_sidebars )  ){?>
-								<p<?php otw_sidebar_item_row_attributes( 'p', $wp_item_type, $sidebar, $widget, $wpItem )?> >
-									<a href="javascript:;"<?php otw_sidebar_item_row_attributes( 'a', $wp_item_type, $sidebar, $widget, $wpItem )?> ><?php echo otw_wp_item_attribute( $wp_item_type, 'TITLE', $wpItem ) ?></a>
-								</p>
+					<div class="inside sitems<?php if( count( $wp_item_data[0] ) > 15 ){ echo ' mto';}?>" id="otw_sbm_app_type_<?php echo $wp_item_type?>" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>" >
+						<div class="all_vis_lnks">
+							<a href="javascript:;" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>|vis" class="all_vis<?php echo otw_sidebar_item_all_class( 'vis', $sidebar, $widget, $wp_item_type )?>"><?php _e( 'all visible' )?></a>
+							<a href="javascript:;" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>|invis"class="all_invis<?php echo otw_sidebar_item_all_class( 'invis', $sidebar, $widget, $wp_item_type )?>"><?php _e( 'all invisible' )?></a>
+							<?php if( !in_array( $wp_item_type, array( 'templatehierarchy', 'pagetemplate', 'archive' ) ) ){?>
+									<input type="text" class="q_filter" value="<?php _e('Type to search' );?>"/>
+									<div class="otw_app_loading"></div>
 							<?php }?>
+						</div>
+						<?php if( count( $wp_item_data[0] ) > 15 ) {?>
+							<div class="more_items"><?php echo sprintf( __( 'Showing 15 of %d items. Please use the filter box to filter them out' ), count( $wp_item_data[0] ) );?></div>
 						<?php }?>
+						<div class="lf_items">
+						</div>
 						
 					</div>
 					
 				</div>
+			
 			</div>
 		<?php }?>
 	<?php }?>
