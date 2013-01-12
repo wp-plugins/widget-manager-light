@@ -56,6 +56,7 @@ Please refer to [online documentation page](http://otwthemes.com/online-document
 = 1.3 =
 
 Manually updating to versiion 1.3. requires deactivation of the old version first. If you are using the wordpress updater it will do all the job for you. 
+
 * Added: Full support for posts, categories, tags, archives, custom post types, custom taxonomies, page templates, WordPress service pages, etc.
 * Added: Convinient filters
 * Updated: Activation method and replacement functionality
