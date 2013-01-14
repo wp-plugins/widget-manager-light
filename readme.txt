@@ -12,6 +12,8 @@ Get control over widgets visibility. Show or hide widgets. Display relevant cont
 
 == Description ==
 
+Updating to version 1.3 - See the Change log tab.
+
 Every widget can now be display on or hidden from one or few pages. Display relevent content on your pages, posts, categories, tags, archives, custom post types, custom taxonomies, page templates, WordPress service pages, etc.. 
 
 This plugin works with all widgedets - WordPress default and any custom added widget.
@@ -55,7 +57,7 @@ Please refer to [online documentation page](http://otwthemes.com/online-document
 
 = 1.3 =
 
-Manually updating to versiion 1.3. requires deactivation of the old version first. If you are using the wordpress updater it will do all the job for you. 
+Updating to versiion 1.5. requires deactivation of the old version first! More info [here](http://otwthemes.com/updating-widgetize-pages-light-to-1-5-version-sidebar-manager-light-to-1-3-widget-manager-light-to-1-3/)  
 
 * Added: Full support for posts, categories, tags, archives, custom post types, custom taxonomies, page templates, WordPress service pages, etc.
 * Added: Convinient filters
