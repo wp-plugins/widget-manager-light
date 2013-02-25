@@ -1,20 +1,22 @@
 === Widget Manager Light ===
 Contributors: OTWthemes
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQH6CMTR42KS2
-Tags: hide widgets, display widget, widget, sidebar, widget area, custom layout, relevant content, sidebars, widgets
+Tags: admin, conditional tags, Context, filter, hide widgets, show widget, widget, sidebar, widget area, custom layout, relevant content, sidebars, widgets, logic
 Requires at least: 3.0
 Tested up to: 3.5
 Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Get control over widgets visibility. Show or hide widgets. Display relevant content in the sidebars of your pages.
+Widget Manager lets you control on which pages widgets appear via nice and easy interface. Show or hide widgets. Display relevant content on your pages.
 
 == Description ==
 
 Updating to version 1.3 - See the Change log tab.
 
-Every widget can now be display on or hidden from one or few pages. Display relevent content on your pages, posts, categories, tags, archives, custom post types, custom taxonomies, page templates, WordPress service pages, etc.. 
+Widget Manager gives you full control over widget visibility via nice and easy interface.
+
+Every widget can now be displayed on or hidden from one or few pages. Display relevent content on your pages, posts, categories, tags, archives, custom post types, custom taxonomies, page templates, WordPress service pages, etc.. 
 
 This plugin works with all widgedets - WordPress default and any custom added widget.
 
