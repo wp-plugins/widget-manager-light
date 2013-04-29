@@ -3,7 +3,7 @@
   *  load wp items by given type and string
   */
 
-global $wp_registered_sidebars, $wp_sbm_int_items, $otw_sbm_plugin_url;
+global $wp_registered_sidebars, $wp_wml_int_items, $otw_wml_plugin_url;
 
 $otw_options = get_option( 'otw_plugin_options' );
 
@@ -60,7 +60,7 @@ if( $format == 'ids' ){
 	
 	$keys = array();
 	foreach( $items as $wpItem ){
-		$key = otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem );
+		$key = otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem );
 		$keys[ $key ] = $key;
 	}
 	if( count( $keys ) ){
@@ -112,9 +112,9 @@ if( $format == 'ids' ){
 			echo '<div class="items_info_app">'.__( 'Showing' ).' '.count( $items ).' '.__( 'of' ).' '.$total_items.'</div>';
 		}?>
 		<?php foreach( $items as $wpItem ) {?>
-			<?php if( isset( $wp_registered_sidebars[ $otw_sidebar_id ]['validfor'][ $wp_item_type ][ otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ] ) || isset( $wp_registered_sidebars[ $otw_sidebar_id ]['validfor'][ $wp_item_type ][ 'all' ] ) || !array_key_exists( $otw_sidebar_id, $otw_sidebars )  ){?>
+			<?php if( isset( $wp_registered_sidebars[ $otw_sidebar_id ]['validfor'][ $wp_item_type ][ otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ] ) || isset( $wp_registered_sidebars[ $otw_sidebar_id ]['validfor'][ $wp_item_type ][ 'all' ] ) || !array_key_exists( $otw_sidebar_id, $otw_sidebars )  ){?>
 				<p<?php otw_sidebar_item_row_attributes( 'p', $wp_item_type, $otw_sidebar_id, $widget, $wpItem )?> >
-					<a href="javascript:;"<?php otw_sidebar_item_row_attributes( 'a', $wp_item_type, $otw_sidebar_id, $widget, $wpItem )?> ><?php echo otw_wp_item_attribute( $wp_item_type, 'TITLE', $wpItem ) ?></a>
+					<a href="javascript:;"<?php otw_sidebar_item_row_attributes( 'a', $wp_item_type, $otw_sidebar_id, $widget, $wpItem )?> ><?php echo otw_wml_wp_item_attribute( $wp_item_type, 'TITLE', $wpItem ) ?></a>
 				</p>
 			<?php }?>
 		<?php }?>
@@ -128,8 +128,8 @@ if( $format == 'ids' ){
 			echo '<p>'.__( 'Total items found:' ).' '.count( $items ).'</p>';
 		}?>
 		<?php foreach( $items as $wpItem ) {?>
-			<p<?php otw_sidebar_item_attributes( 'p', $wp_item_type, otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ), $otw_sidebar_values, $wpItem )?>>
-				<input type="checkbox" id="otw_sbi_<?php echo $wp_item_type?>_<?php echo otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ?>"<?php otw_sidebar_item_attributes( 'c', $wp_item_type, otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ), $otw_sidebar_values, array() )?> value="<?php echo otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ?>" name="otw_sbi_<?php echo $wp_item_type?>[<?php echo otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ?>]" /><label for="otw_sbi_<?php echo $wp_item_type?>_<?php echo otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ?>"<?php otw_sidebar_item_attributes( 'l', $wp_item_type, otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ), $otw_sidebar_values, $wpItem )?> ><a href="javascript:;"><?php echo otw_wp_item_attribute( $wp_item_type, 'TITLE', $wpItem ) ?></a></label>
+			<p<?php otw_sidebar_item_attributes( 'p', $wp_item_type, otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ), $otw_sidebar_values, $wpItem )?>>
+				<input type="checkbox" id="otw_sbi_<?php echo $wp_item_type?>_<?php echo otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ?>"<?php otw_sidebar_item_attributes( 'c', $wp_item_type, otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ), $otw_sidebar_values, array() )?> value="<?php echo otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ?>" name="otw_sbi_<?php echo $wp_item_type?>[<?php echo otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ?>]" /><label for="otw_sbi_<?php echo $wp_item_type?>_<?php echo otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ?>"<?php otw_sidebar_item_attributes( 'l', $wp_item_type, otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ), $otw_sidebar_values, $wpItem )?> ><a href="javascript:;"><?php echo otw_wml_wp_item_attribute( $wp_item_type, 'TITLE', $wpItem ) ?></a></label>
 			</p>	
 		<?php }?>
 		

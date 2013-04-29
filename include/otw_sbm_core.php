@@ -15,29 +15,30 @@ if( !function_exists( 'otw_sbm_index' ) ){
 					
 					if( $wp_registered_sidebars[ $repl_sidebar ]['status'] == 'active'  ){
 						
-						foreach( $requested_objects as $objects ){
-						
-							list( $object, $object_id ) = $objects;
-						
-							if( $object && $object_id ){
-								
-								$tmp_index = otw_validate_sidebar_index( $repl_sidebar, $object, $object_id );
-								
-								if( $tmp_index ){
-									if ( !empty($sidebars_widgets[$tmp_index]) ){
-										$sidebars_widgets[$tmp_index] = otw_filter_siderbar_widgets( $tmp_index, $sidebars_widgets );
-										
-										if( count( $sidebars_widgets[$tmp_index] ) ){
-											$index = $tmp_index;
-											break 2;
+						if( otw_filter_strict_sidebar_index( $repl_sidebar ) ){
+							foreach( $requested_objects as $objects ){
+							
+								list( $object, $object_id ) = $objects;
+							
+								if( $object && $object_id ){
+									
+									$tmp_index = otw_validate_sidebar_index( $repl_sidebar, $object, $object_id );
+									
+									if( $tmp_index ){
+										if ( !empty($sidebars_widgets[$tmp_index]) ){
+											$sidebars_widgets[$tmp_index] = otw_filter_siderbar_widgets( $tmp_index, $sidebars_widgets );
+											
+											if( count( $sidebars_widgets[$tmp_index] ) ){
+												$index = $tmp_index;
+												break 2;
+											}
 										}
 									}
-								}
+									
+								}//end hs object and object id
 								
-							}//end hs object and object id
-							
-						}//end loop requested objects
-						
+							}//end loop requested objects
+						}
 					}
 				}
 			}
@@ -183,6 +184,26 @@ if( !function_exists( 'otw_filter_siderbar_widgets' ) ){
 					}
 				}
 				
+				if( isset( $filtered_widgets ) && is_array( $filtered_widgets ) && count( $filtered_widgets ) ){
+					$collected_widgets = array();
+					foreach( $filtered_widgets as $widget_order => $widget_name ){
+						$collected_widgets[ $widget_name ] = $widget_order;
+					}
+					$collected_widgets = otw_filter_strict_widgets( $index, $collected_widgets );
+					
+					//fix the order of widgets
+					if( is_array( $collected_widgets ) && count( $collected_widgets ) ){
+						$filtered_widgets = array();
+						asort( $collected_widgets );
+						foreach( $collected_widgets as $tmp_widget => $tmp_order ){
+							$filtered_widgets[] = $tmp_widget;
+						}
+					}
+					else{
+						$filtered_widgets = array();
+					}
+				}
+				
 			}else{
 				$filtered_widgets = $sidebars_widgets[ $index ];
 			}
@@ -194,12 +215,22 @@ if( !function_exists( 'otw_filter_siderbar_widgets' ) ){
 if( !function_exists( 'otw_get_current_object' ) ){
 	function otw_get_current_object(){
 		
-		global $wp_query;
+		global $current_user;
+		
+		$wp_query = $GLOBALS['wp_query'];
+		
+		$object_key = 0;
+		
+		$pre_objects = 0;
+		
 		$object = '';
 		$object_id = 0;
+		$object_type = 'flow';
 		
-		$objects[0][0] = '';
-		$objects[0][1] = 0;
+		$current_object_key = $object_key;
+		$objects[$current_object_key][0] = '';
+		$objects[$current_object_key][1] = 0;
+		$objects[$current_object_key][2] = 'flow';
 		
 		wp_reset_query();
 		
@@ -209,6 +240,36 @@ if( !function_exists( 'otw_get_current_object' ) ){
 			
 			$object_id = $query_object->ID;
 			
+			if( is_page_template() ){
+				$template_string = get_page_template();
+				$template_parts = explode( "/", $template_string );
+				$o_id = $template_parts[ count( $template_parts ) - 1 ];
+				if( $o_id != 'page.php' ){
+					$objects[ $current_object_key + 1 ][0] = 'pagetemplate';
+					$objects[ $current_object_key + 1 ][1] = $o_id;
+					$objects[ $current_object_key + 1 ][2] = 'flow';
+				}
+			}
+			
+			
+			$custom_taxonomies = get_taxonomies( array(  'public'   => true, '_builtin' => false ), 'object' );
+			if( is_array( $custom_taxonomies ) && count( $custom_taxonomies ) ){
+				
+				foreach( $custom_taxonomies as $c_type => $c_type_info ){
+					
+					$post_taxonomies = wp_get_object_terms( $object_id, $c_type );
+					
+					if( is_array( $post_taxonomies ) && count( $post_taxonomies ) ){
+						
+						foreach( $post_taxonomies as $p_tax ){
+							$object_key = count( $objects );
+							$objects[ $object_key ][0] = 'page_in_ctx_'.$c_type;
+							$objects[ $object_key ][1] = $p_tax->term_id;
+							$objects[ $object_key ][2] = 'flow';
+						}
+					}
+				}
+			}
 			
 		}elseif( is_single() ){
 			$post_type = get_post_type();
@@ -224,11 +285,75 @@ if( !function_exists( 'otw_get_current_object' ) ){
 				if( is_array( $posts ) && count( $posts ) ){
 					$object_id = $posts[0]->ID;
 				}
+				
+				$custom_taxonomies = get_taxonomies( array(  'public'   => true, '_builtin' => false ), 'object' );
+				if( is_array( $custom_taxonomies ) && count( $custom_taxonomies ) ){
+					
+					foreach( $custom_taxonomies as $c_type => $c_type_info ){
+						
+						$post_taxonomies = wp_get_object_terms( $object_id, $c_type );
+						
+						if( is_array( $post_taxonomies ) && count( $post_taxonomies ) ){
+							
+							foreach( $post_taxonomies as $p_tax ){
+								$object_key = count( $objects );
+								$objects[ $object_key ][0] = $post_type.'_in_ctx_'.$c_type;
+								$objects[ $object_key ][1] = $p_tax->term_id;
+								$objects[ $object_key ][2] = 'flow';
+							}
+						}
+					}
+				}
+
+				
 			}else{
 				$object = 'post';
 				$query_object = $wp_query->get_queried_object();
 				
 				$object_id = $query_object->ID;
+				
+				if( $object_id ){
+					$post_categories = wp_get_post_categories( $object_id );
+					
+					if( is_array( $post_categories ) && count( $post_categories ) ){
+						foreach( $post_categories as $p_cat ){
+							
+							$object_key = count( $objects );
+							
+							$objects[ $object_key ][0] = 'postsincategory';
+							$objects[ $object_key ][1] = $p_cat;
+							$objects[ $object_key ][2] = 'flow';
+						}
+					}
+					$post_tags = wp_get_post_tags( $object_id );
+					if( is_array( $post_tags ) && count( $post_tags ) ){
+						foreach( $post_tags as $p_tag ){
+							$object_key = count( $objects );
+							
+							$objects[ $object_key ][0] = 'postsintag';
+							$objects[ $object_key ][1] = $p_tag->term_id;
+							$objects[ $object_key ][2] = 'flow';
+						}
+					}
+					$custom_taxonomies = get_taxonomies( array(  'public'   => true, '_builtin' => false ), 'object' );
+					if( is_array( $custom_taxonomies ) && count( $custom_taxonomies ) ){
+						
+						foreach( $custom_taxonomies as $c_type => $c_type_info ){
+							
+							$post_taxonomies = wp_get_object_terms( $object_id, $c_type );
+							
+							if( is_array( $post_taxonomies ) && count( $post_taxonomies ) ){
+								
+								foreach( $post_taxonomies as $p_tax ){
+									$object_key = count( $objects );
+									$objects[ $object_key ][0] = 'post_in_ctx_'.$c_type;
+									$objects[ $object_key ][1] = $p_tax->term_id;
+									$objects[ $object_key ][2] = 'flow';
+								}
+							}
+						}
+					}
+				}
 			}
 			
 		}elseif( is_category() ){
@@ -246,7 +371,12 @@ if( !function_exists( 'otw_get_current_object' ) ){
 			
 			$query_object = $wp_query->get_queried_object();
 			
-			if( is_tax() ){
+			if( is_author() ){
+				$q_object = $wp_query->get_queried_object();
+				
+				$object = 'author_archive';
+				$object_id = $q_object->data->ID;
+			}elseif( is_tax() ){
 				$q_object = $wp_query->get_queried_object();
 				
 				$object = 'ctx_'.$q_object->taxonomy;
@@ -260,80 +390,127 @@ if( !function_exists( 'otw_get_current_object' ) ){
 			}
 			elseif( isset( $wp_query->query['year'] ) ){
 				$object_id = 'yearly';
+			}elseif( function_exists( 'is_shop' ) && function_exists( 'woocommerce_get_page_id' ) && is_shop() && woocommerce_get_page_id('shop') ){
+				//woocommerce pages
+				$object = 'page';
+				$object_id = woocommerce_get_page_id('shop');
+				
+			}elseif( otw_installed_plugin( 'bbpress' ) && isset( $wp_query->post ) && $wp_query->post->ID == 0 && isset( $wp_query->queried_object_id ) && ( $wp_query->queried_object_id == 0 ) && isset( $wp_query->queried_object ) && ( $wp_query->queried_object->name == 'forum' ) ){
+				//bbpress pages
+				$object = 'bbp_page';
+				$object_id = 'forums';
 			}
-			
+		}else{
+			if( !$object ){
+				if( isset( $wp_query->queried_object ) && is_object(  $wp_query->queried_object ) && isset( $wp_query->queried_object->taxonomy ) && isset( $wp_query->queried_object->term_taxonomy_id ) && $wp_query->queried_object->term_taxonomy_id  ){
+					$object = 'ctx_'.$wp_query->queried_object->taxonomy;
+					$object_id = $wp_query->queried_object->term_taxonomy_id;
+				}elseif( otw_installed_plugin( 'bbpress' ) && isset( $wp_query->bbp_is_search ) && $wp_query->bbp_is_search ){
+					$object = 'bbp_page';
+					$object_id = 'search';
+				}elseif( otw_installed_plugin( 'bbpress' ) && isset( $wp_query->bbp_is_view ) && $wp_query->bbp_is_view && isset( $wp_query->query ) && isset( $wp_query->query['bbp_view'] ) && (  $wp_query->query['bbp_view'] == 'no-replies' )  ){
+					$object = 'bbp_page';
+					$object_id = 'noreplies';
+				}elseif( otw_installed_plugin( 'bbpress' ) && isset( $wp_query->bbp_is_view ) && $wp_query->bbp_is_view && isset( $wp_query->query ) && isset( $wp_query->query['bbp_view'] ) && (  $wp_query->query['bbp_view'] == 'popular' ) ){
+					$object = 'bbp_page';
+					$object_id = 'mostpopular';
+				}elseif( otw_installed_plugin( 'bbpress' ) && isset( $wp_query->bbp_is_single_user ) && $wp_query->bbp_is_single_user ){
+					$object = 'bbp_page';
+					$object_id = 'singleuser';
+				}
+			}
 		}
 		
-		$objects[0][0] = $object;
-		$objects[0][1] = $object_id;
+		$objects[ $current_object_key ][0] = $object;
+		$objects[ $current_object_key ][1] = $object_id;
+		$objects[ $current_object_key ][2] = 'flow';
 		
 		//add Template Hierarchy as next object
 		$object_key = count( $objects );
 		
-		if( $object_key == 1 && !$objects[0][0] ){
-			$object_key = 0;
+		if( ( $object_key == ( $pre_objects + 1 ) ) && !$objects[ $current_object_key ][0] ){
+			$object_key = $current_object_key;
 		}
 		
 		if( is_front_page() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'front';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_home() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'home';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_404() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = '404';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_search() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'search';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_date() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'date';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_author() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'author';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_category() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'category';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_tag() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'tag';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_tax() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'taxonomy';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_archive() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'archive';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_single() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'single';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
 		if( is_attachment() ){
 			$objects[ $object_key ][0] = 'templatehierarchy';
 			$objects[ $object_key ][1] = 'attachment';
+			$objects[ $object_key ][2] = 'flow';
 			$object_key++;
 		}
+		if( is_page() ){
+			$objects[ $object_key ][0] = 'templatehierarchy';
+			$objects[ $object_key ][1] = 'page';
+			$objects[ $object_key ][2] = 'flow';
+			$object_key++;
+		}
+		
 		return $objects;
 	} }
 	
@@ -478,6 +655,14 @@ if( !function_exists( 'otw_get_wp_items' ) ){
 			case 'post':
 					return get_posts( array( 'numberposts' => -1 )  );
 				break;
+			case 'postsincategory':
+					$categories = get_categories(array('hide_empty' => 0));
+					$categories = otw_group_items( $categories, 'cat_ID', 'parent', 0 );
+					return $categories;
+				break;
+			case 'postsintag':
+					return get_terms( 'post_tag', '&orderby=name&hide_empty=0' );
+				break;
 			case 'category':
 					$categories = get_categories(array('hide_empty' => 0));
 					$categories = otw_group_items( $categories, 'cat_ID', 'parent', 0 );
@@ -597,8 +782,8 @@ if( !function_exists( 'otw_group_items' ) ){
   *  @param stdClass
   *  @return string
   */
-if( !function_exists( 'otw_wp_item_attribute' ) ){
-	function otw_wp_item_attribute( $item_type, $attribute, $object ){
+if( !function_exists( 'otw_wml_wp_item_attribute' ) ){
+	function otw_wml_wp_item_attribute( $item_type, $attribute, $object ){
 		
 		switch( $attribute ){
 			
@@ -610,6 +795,9 @@ if( !function_exists( 'otw_wp_item_attribute' ) ){
 						case 'category':
 								return $object->cat_ID;
 							break;
+						case 'postsintag':
+								return $object->term_id;
+							break;
 						case 'posttag':
 								return $object->term_id;
 							break;
@@ -619,8 +807,13 @@ if( !function_exists( 'otw_wp_item_attribute' ) ){
 						case 'customposttype':
 								return $object->name;
 							break;
+						case 'author_archive':
+								return $object->ID;
+							break;
 						default:
 								if( preg_match( "/^ctx_(.*)$/", $item_type, $matches ) ){
+									return $object->term_id;
+								}elseif( preg_match( "/^(.*)_in_ctx_(.*)$/", $item_type, $matches ) ){
 									return $object->term_id;
 								}
 								
@@ -636,6 +829,9 @@ if( !function_exists( 'otw_wp_item_attribute' ) ){
 							break;
 						case 'customposttype':
 								return $object->label;
+							break;
+						case 'author_archive':
+								return $object->display_name;
 							break;
 						default:
 								if( preg_match( "/^cpt_(.*)$/", $item_type, $matches ) ){
@@ -751,6 +947,7 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 					return array( $all_items, get_categories( $args ) );
 				break;
 			case 'posttag':
+			case 'postsintag':
 					$args = array();
 					$args['hide_empty']      = 0;
 					$args['number']          = 0;
@@ -772,12 +969,126 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 					
 					return array( $all_items, get_terms( 'post_tag', $args ) );
 				break;
+			case 'author_archive':
+					$args = array();
+					$args['number']          = 0;
+					
+					if( count( $id_list_filter ) ){
+						sort( $id_list_filter );
+						$args['include']  = $id_list_filter;
+					}
+					
+					if( $string_filter ){
+						$args['search'] = '*'.$string_filter.'*';
+					}
+					
+					$all_items = count( get_users( $args ) );
+					
+					$args['number']          = ($displayed_items)?$displayed_items:0;
+					$args['orderby']         = 'display_name';
+					$args['order']           = 'ASC';
+					
+					return array( $all_items, get_users( $args ) );
+				break;
+
 			case 'customposttype':
 			case 'templatehierarchy':
 			case 'pagetemplate':
 			case 'archive':
 					$items = otw_get_wp_items( $type );
 					return array( count( $items ), $items );
+				break;
+			case 'userroles':
+					$items = array();
+					$wp_roles = new WP_Roles;
+					$all_items = $wp_roles->get_names();
+					$all_items['notlogged'] = __( 'Not Logged in' );
+					
+					foreach( $all_items as $u_role_code => $u_role_name ){
+						
+						if( $string_filter ){
+							
+							if( ( stripos( $u_role_name, $string_filter ) === false ) ){
+								continue;
+							}
+						}
+						
+						$item = new stdClass();
+						$item->ID = $u_role_code;
+						if( $u_role_code != 'notlogged' ){
+							$item->name = __( 'Logged in as ', 'otw_sbm' ).$u_role_name;
+						}else{
+							$item->name = $u_role_name;
+						}
+						
+						$items[] = $item;
+						
+						if( $displayed_items > 0 && ( $displayed_items <= count( $items ) ) ){
+							break;
+						}
+					}
+					
+					return array( count( $all_items ), $items );
+				break;
+			case 'wpmllanguages':
+					if( function_exists( 'icl_get_languages' ) ){
+						
+						$wpml_languages = icl_get_languages( 'skip_missing=1' );
+						
+						$all_items = count( $wpml_languages );
+						
+						$items = array();
+						foreach( $wpml_languages as $wpml_lang ){
+							
+							if( $string_filter ){
+								
+								if( ( stripos( $wpml_lang['translated_name'], $string_filter ) === false ) && ( stripos( $wpml_lang['translated_name'], $string_filter ) === false ) ){
+									continue;
+								}
+							}
+							
+							$item = new stdClass();
+							$item->ID = $wpml_lang['language_code'];
+							$item->name = '<img src="'.$wpml_lang['country_flag_url'].'" alt="'.$wpml_lang['language_code'].'" border="0"/>&nbsp;'.$wpml_lang['native_name'];
+							
+							$items[] = $item;
+							
+						}
+						return array( $all_items, $items );
+					}
+				break;
+			case 'bbp_page':
+					if( otw_installed_plugin( 'bbpress' ) ){
+						
+						$bbp_pages = array();
+						
+						$bbp_pages[] = array( 'id' => 'forums', 'name' => __( 'Forums', 'otw_sbm' ) );
+						$bbp_pages[] = array( 'id' => 'noreplies', 'name' => __( 'Topics no reply', 'otw_sbm' ) );
+						$bbp_pages[] = array( 'id' => 'mostpopular', 'name' => __( 'Topics popular', 'otw_sbm' ) );
+						$bbp_pages[] = array( 'id' => 'search', 'name' => __( 'Search', 'otw_sbm' ) );
+						$bbp_pages[] = array( 'id' => 'singleuser', 'name' => __( 'User pages', 'otw_sbm' ) );
+						
+						$all_items = count( $bbp_pages );
+						
+						$items = array();
+						foreach( $bbp_pages as $bbp_page ){
+							
+							if( $string_filter ){
+								
+								if( stripos( $bbp_page['name'], $string_filter ) === false ){
+									continue;
+								}
+							}
+							
+							$item = new stdClass();
+							$item->ID = $bbp_page['id'];
+							$item->name = $bbp_page['name'];
+							
+							$items[] = $item;
+							
+						}
+						return array( $all_items, $items );
+					}
 				break;
 			default:
 					
@@ -831,6 +1142,28 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 						$args['order']           = 'ASC';
 						
 						return array( $all_items, get_terms( $matches[1], $args ) );
+					}elseif( preg_match( "/(.*)_in_ctx_(.*)$/", $type, $matches ) ){
+						
+						$args = array();
+						$args['hide_empty']      = 0;
+						$args['number']          = 0;
+						
+						if( count( $id_list_filter ) ){
+							sort( $id_list_filter );
+							$args['include']  = $id_list_filter;
+						}
+						
+						if( $string_filter ){
+							$args['search'] = $string_filter;
+						}
+						
+						$all_items = count( get_terms( $matches[2], $args ) );
+						
+						$args['number']          = ($displayed_items)?$displayed_items:0;
+						$args['orderby']         = 'name';
+						$args['order']           = 'ASC';
+						
+						return array( $all_items, get_terms( $matches[2], $args ) );
 					}
 				break;
 		}
@@ -845,6 +1178,235 @@ if (!function_exists( "otw_sbm_post_by_title" )){
 		
 		$query .= " AND post_title LIKE '%".$string_filter."%'";
 		return $query;
+	}
+}
+if( !function_exists( 'otw_get_strict_filters' ) ){
+	function otw_get_strict_filters(){
+		
+		global $current_user;
+		$filters = array();
+		
+		//apply user roles
+		get_currentuserinfo();
+		
+		if( isset( $current_user->ID ) && intval( $current_user->ID ) && isset( $current_user->roles ) && is_array( $current_user->roles ) && count( $current_user->roles ) ){
+			
+			$filter_key = count( $filters );
+			$filters[ $filter_key ][0] = 'userroles';
+			$filters[ $filter_key ][1] = array();
+			foreach( $current_user->roles as $u_role ){
+				$filters[ $filter_key ][1][] = $u_role;
+			}
+			$filters[ $filter_key ][2] = 'any';
+		}
+		else
+		{
+			$filter_key = count( $filters );
+			$filters[ $filter_key ][0] = 'userroles';
+			$filters[ $filter_key ][1] = array();
+			$filters[ $filter_key ][1][] = 'notlogged';
+			$filters[ $filter_key ][2] = 'any';
+		}
+		
+		if( function_exists( 'icl_get_languages' ) && defined( 'ICL_LANGUAGE_CODE' ) ){
+			
+			$filter_key = count( $filters );
+			$filters[ $filter_key ][0] = 'wpmllanguages';
+			$filters[ $filter_key ][1] = array();
+			$filters[ $filter_key ][1][] = ICL_LANGUAGE_CODE;
+			$filters[ $filter_key ][2] = 'all';
+		}
+		return $filters;
+	}
+}
+/**
+ * check all colected widgets for a sidebar if match all strict filters
+ * @param string sidebar index
+ * @param array collected widgets
+ * @return array
+ */
+if( !function_exists( 'otw_filter_strict_widgets' ) ){
+	function otw_filter_strict_widgets( $index, $collected_widgets ){
+		
+		global  $wp_registered_sidebars;
+		
+		$filters = otw_get_strict_filters();
+		
+		$strict_filtered_widgets = $collected_widgets;
+		
+		if( is_array( $filters ) && count( $filters ) ){
+			
+			if( isset( $wp_registered_sidebars[ $index ] ) ){
+				
+				if( is_array( $strict_filtered_widgets ) && count( $strict_filtered_widgets ) ){
+				
+					$filters = otw_get_strict_filters();
+					
+					foreach( $collected_widgets as $widget => $widget_order){
+						
+						foreach( $filters as $filter ){
+							
+							switch( $filter[2] ){
+								case 'any':
+										$match_any = false;
+										
+										if( isset( $wp_registered_sidebars[$index]['widgets_settings'] ) &&  isset( $wp_registered_sidebars[$index]['widgets_settings'][$filter[0]] ) ){
+											
+											if( isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ]['_otw_wc'] ) && isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ]['_otw_wc'][ $widget ] ) && in_array( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ]['_otw_wc'][ $widget ] , array( 'vis', 'invis' ) )  ){
+												
+												if( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ]['_otw_wc'][ $widget ] == 'vis' ){
+													$match_any = true;
+												}
+											}else{
+												foreach( $filter[1] as $v_filter ){
+													
+													if( !isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ][ $v_filter ] ) || !isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ][ $v_filter ]['exclude_widgets'] ) || !isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ][ $v_filter ]['exclude_widgets'][$widget] ) ){
+														$match_any = true;
+														break;
+													}
+												}
+											}
+										}elseif( isset( $wp_registered_sidebars[$index]['widgets_settings'] ) && !isset( $wp_registered_sidebars[$index]['widgets_settings'][$filter[0]] ) ){
+											$match_any = true;
+										}
+										
+										if( !$match_any && isset( $strict_filtered_widgets[ $widget ] ) ){
+											unset( $strict_filtered_widgets[ $widget ] );
+										}
+									break;
+								case 'all':
+										$dont_match_one = false;
+										
+										if( isset( $wp_registered_sidebars[$index]['widgets_settings'] ) &&  isset( $wp_registered_sidebars[$index]['widgets_settings'][$filter[0]] ) ){
+										
+											if( isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ]['_otw_wc'] ) && isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ]['_otw_wc'][ $widget ] ) ){
+												
+												if( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ]['_otw_wc'][ $widget ] == 'invis' ){
+													$dont_match_one = true;
+												}
+											}else{
+												foreach( $filter[1] as $v_filter ){
+													
+													if( isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ][ $v_filter ] ) && isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ][ $v_filter ]['exclude_widgets'] ) && isset( $wp_registered_sidebars[$index]['widgets_settings'][ $filter[0] ][ $v_filter ]['exclude_widgets'][$widget] ) ){
+														$dont_match_one = true;
+													}
+												}
+											}
+										}
+										
+										if( $dont_match_one && isset( $strict_filtered_widgets[ $widget ] ) ){
+											unset( $strict_filtered_widgets[ $widget ] );
+										}
+									break;
+							}
+						}
+					}
+				}
+			}
+		}
+		return $strict_filtered_widgets;
+	}
+}
+/**
+ * check if given sidebar match all strict filters
+ * @param index sidebar index
+ * @return boolean
+ */
+if( !function_exists( 'otw_filter_strict_sidebar_index' ) ){
+	function otw_filter_strict_sidebar_index( $index ){
+		
+		global $wp_registered_sidebars;
+		
+		$result = true;
+		
+		$filters = otw_get_strict_filters();
+		
+		if( is_array( $filters ) && count( $filters ) ){
+			
+			if( $result ){
+				
+				foreach( $filters as $filter ){
+					
+					switch( $filter[2] ){
+					
+						case 'any':
+								$match_any = false;
+								if( isset( $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ] ) && is_array( $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ] ) && count( $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ] ) ){
+									
+									if( isset( $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ]['all'] ) ){
+										$match_any = true;
+									}else{
+										foreach( $filter[1] as $s_filter ){
+											
+											if( array_key_exists( $s_filter, $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ] ) ){
+											
+												$match_any = true;
+												break;
+											}
+										}
+									}
+								}
+								if( !$match_any ){
+									$result = false;
+								}
+							break;
+						case 'all':
+								$dont_match_one = false;
+								
+								foreach( $filter[1] as $s_filter ){
+								
+									if( isset( $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ] ) && is_array( $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ] ) && count( $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ] ) ){
+										
+										if( !isset( $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ]['all'] ) ){
+											
+											if( !array_key_exists( $s_filter, $wp_registered_sidebars[ $index ]['validfor'][ $filter[0] ] ) ){
+												$dont_match_one = true;
+												break;
+											}
+										}
+									}else{
+										$dont_match_one = true;
+										break;
+									}
+								}
+								if( $dont_match_one ){
+									$result = false;
+								}
+							break;
+					}
+				}
+			}
+		}
+		
+		return $result;
+		
+	}
+}
+
+/**
+ * Check if external plugin is installed
+ *
+ * @param string - plugin name
+ * @return boolean
+ */
+if( !function_exists( 'otw_installed_plugin' ) ){
+	function otw_installed_plugin( $plugin_name ){
+		
+		$installed = false;
+		switch( $plugin_name ){
+			case 'bbpress':
+					if(function_exists( 'bbp_get_db_version_raw') && bbp_get_db_version_raw() ){
+						$installed = true;
+					}
+				break;
+			case 'wpml':
+					if( function_exists( 'icl_get_languages' ) ){
+						$installed = true;
+					}
+				break;
+		}
+		
+		return $installed;
 	}
 }
 ?>

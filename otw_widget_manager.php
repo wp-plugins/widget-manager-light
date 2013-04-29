@@ -4,18 +4,21 @@ Plugin Name: Widget Manager Light
 Plugin URI: http://otwthemes.com/?utm_source=wp.org&utm_medium=admin&utm_content=site&utm_campaign=wml
 Description:  Get control over widgets visibility. You can now customize each page with specific widgets that are relative to the content on that page. No coding required.
 Author: OTWthemes.com
-Version: 1.3
+Version: 1.4
 Author URI: http://otwthemes.com/?utm_source=wp.org&utm_medium=admin&utm_content=site&utm_campaign=wml
 */
-$wp_int_items = array(
+$wp_wml_int_items = array(
 	'page'              => array( array(), __( 'Pages' ), __( 'All pages' ) ),
 	'post'              => array( array(), __( 'Posts', 'otw_sbm' ), __( 'All posts', 'otw_sbm' ) ),
 	'postsincategory'   => array( array(), __( 'All posts from category', 'otw_sbm' ), __( 'All categories', 'otw_sbm' ) ),
+	'postsintag'        => array( array(), __( 'All posts from tag', 'otw_sbm' ), __( 'All tags', 'otw_sbm' ) ),
 	'category'          => array( array(), __( 'Categories', 'otw_sbm' ), __( 'All categories', 'otw_sbm' ) ),
 	'posttag'           => array( array(), __( 'Tags', 'otw_sbm' ), __( 'All tags', 'otw_sbm' ) ),
+	'author_archive'    => array( array(), __( 'Author archives', 'otw_sbm' ), __( 'All author archives', 'otw_sbm' ) ),
 	'templatehierarchy' => array( array(), __( 'Template Hierarchy', 'otw_sbm'), __( 'All templates', 'otw_sbm' ) ),
 	'pagetemplate'      => array( array(), __( 'Page Templates', 'otw_sbm' ), __( 'All page templates', 'otw_sbm' ) ),
-	'archive'           => array( array(), __( 'Archives', 'otw_sbm' ), __( 'All archives', 'otw_sbm' ) )
+	'archive'           => array( array(), __( 'Archives', 'otw_sbm' ), __( 'All archives', 'otw_sbm' ) ),
+	'userroles'         => array( array(), __( 'User roles/Logged in as', 'otw_sbm' ), __( 'All roles', 'otw_sbm' ) )
 );
 
 global $otw_plugin_options;
@@ -66,7 +69,8 @@ function otw_wml_items_by_type(){
   *  @param string
   */
 function enqueue_wml_scripts( $requested_page ){
-	global $otw_wml_plugin_url;
+
+	global $otw_wml_plugin_url;
 	
 	switch( $requested_page ){
 	

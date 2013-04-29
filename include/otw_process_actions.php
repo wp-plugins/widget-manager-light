@@ -104,7 +104,7 @@ if( isset( $_POST['otw_wml_action'] ) ){
 				wp_redirect( admin_url( 'admin.php?page=otw-wml&message=1' ) );
 			break;
 		case 'manage_otw_sidebar':
-				global $validate_messages, $wp_int_items;
+				global $validate_messages, $wp_wml_int_items;
 				$validate_messages = array();
 				$valid_page = true;
 				if( !isset( $_POST['sbm_title'] ) || !strlen( trim( $_POST['sbm_title'] ) ) ){
@@ -139,7 +139,7 @@ if( isset( $_POST['otw_wml_action'] ) ){
 					$sidebar['widget_alignment'] = (string) $_POST['sbm_widget_alignment'];
 					
 					//save selected items
-					$otw_sbi_items = array_keys( $wp_int_items );
+					$otw_sbi_items = array_keys( $wp_wml_int_items );
 					
 					foreach( $otw_sbi_items as $otw_sbi_item ){
 						

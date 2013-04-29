@@ -4,13 +4,14 @@
   */
 function otw_wml_plugin_init(){
 	
-	global $wp_registered_sidebars, $otw_replaced_sidebars, $wp_int_items, $otw_wml_plugin_url;
+	global $wp_registered_sidebars, $otw_replaced_sidebars, $wp_wml_int_items, $otw_wml_plugin_url;
 	
 	if( is_admin() ){
 		if( function_exists( 'otwrem_dynamic_sidebar' ) ){
 			update_option( 'otw_wml_plugin_error', '' );
 		}
 	}
+	otw_wml_sidebar_add_items();
 	
 	$otw_registered_sidebars = get_option( 'otw_sidebars' );
 	$otw_widget_settings = get_option( 'otw_widget_settings' );
@@ -29,6 +30,33 @@ function otw_wml_plugin_init(){
 			}else{
 				$wp_registered_sidebars[ $wp_widget_key ]['widgets_settings'] = array();
 			}
+		}
+	}
+	
+	$custom_post_types = get_post_types( array(  'public'   => true, '_builtin' => false ), 'object' );
+	if( is_array( $custom_post_types ) ){
+		foreach( $custom_post_types as $c_key => $c_cust ){
+			
+			if( otw_installed_plugin( 'bbpress' ) && $c_key == 'reply' ){
+				//skip reply they appear on same pages as topics
+			}else{
+				$wp_wml_int_items[ 'cpt_'. $c_cust->name ] = array( array(), $c_cust->label, __( 'All ', 'otw_sbm' ).$c_cust->labels->name );
+			}
+		}
+	}
+	
+	$custom_taxonomies = get_taxonomies( array(  'public'   => true, '_builtin' => false ), 'object' );
+	
+	if( is_array( $custom_taxonomies ) ){
+		foreach( $custom_taxonomies as $c_cust ){
+			$wp_wml_int_items[ 'ctx_'. $c_cust->name ] = array( array(), $c_cust->label.' '.__( 'archives', 'otw_sbm' ),__( 'All ', 'otw_sbm' ).$c_cust->label.' '.__('archives', 'otw_sbm' ) );
+			foreach( $c_cust->object_type as $c_object ){
+				
+				if( $c_object_info = get_post_type_object( $c_object ) ){
+					$wp_wml_int_items[ $c_object.'_in_ctx_'. $c_cust->name ] = array( array(), __( 'All', 'otw_sbm' ).' '.$c_object_info->labels->name.' '.__( 'from taxonomy', 'otw_sbm' ).' '.$c_cust->label, __( 'All', 'otw_sbm' ).' '.$c_object_info->labels->name.' '.__( 'from taxonomy', 'otw_sbm' ).' '.$c_cust->label );
+				}
+			}
+			
 		}
 	}
 	
@@ -79,7 +107,7 @@ if (!function_exists( "otw_sidebar_item_row_attributes" )){
 							$attributes['class'][] = 'sitem_selected';
 						}
 					}
-					elseif( isset( $wp_registered_sidebars[ $sidebar ]['widgets_settings'][ $wp_item_type ][ otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ]['exclude_widgets'][ $widget ] ) ){
+					elseif( isset( $wp_registered_sidebars[ $sidebar ]['widgets_settings'][ $wp_item_type ][ otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ]['exclude_widgets'][ $widget ] ) ){
 						$attributes['class'][] = 'sitem_notselected';
 					}else{
 						$attributes['class'][] = 'sitem_selected';
@@ -87,7 +115,7 @@ if (!function_exists( "otw_sidebar_item_row_attributes" )){
 				break;
 			case 'a':
 					$attributes['class'] = array();
-					$attributes['class'][] = $sidebar.'|'.$widget.'|'.$wp_item_type.'|'.otw_wp_item_attribute( $wp_item_type, 'ID', $wpItem );
+					$attributes['class'][] = $sidebar.'|'.$widget.'|'.$wp_item_type.'|'.otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem );
 					switch( $wp_item_type ){
 						case 'page':
 						case 'category':
@@ -192,6 +220,28 @@ if (!function_exists( "otw_sidebar_item_attributes" )){
 	}
 }
 
+/**
+ * Add more items based on installed plugins etc.
+ */
+function otw_wml_sidebar_add_items(){
+	
+	global $wp_wml_int_items;
+	
+	//wpml
+	$active_plugins = get_settings( 'active_plugins' );
+	
+	if( in_array( 'sitepress-multilingual-cms/sitepress.php', $active_plugins ) && function_exists( 'icl_get_languages' ) ){
+		$wp_wml_int_items['wpmllanguages'] = array();
+		$wp_wml_int_items['wpmllanguages'][0] = array();
+		$wp_wml_int_items['wpmllanguages'][1] = __( 'WPML plugin language', 'otw_sbm' );
+		$wp_wml_int_items['wpmllanguages'][2] = __( 'All WPML plugin languages', 'otw_sbm' );
+	}elseif( otw_installed_plugin( 'bbpress' ) ){
+		$wp_wml_int_items['bbp_page'] = array();
+		$wp_wml_int_items['bbp_page'][0] = array();
+		$wp_wml_int_items['bbp_page'][1] = __( 'bbPress pages', 'otw_sbm' );
+		$wp_wml_int_items['bbp_page'][2] = __( 'All bbPress pages', 'otw_sbm' );
+	}
+}
 
 require_once( plugin_dir_path( __FILE__ ).'otw_sbm_core.php' );
 ?>

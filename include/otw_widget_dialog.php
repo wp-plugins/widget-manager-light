@@ -17,7 +17,7 @@ if( !$sidebar || !$widget ){
 	wp_die( __( 'Invalid sidebar or widget' ) );
 }
 
-global $wp_registered_sidebars, $wp_int_items, $otw_wml_plugin_url;
+global $wp_registered_sidebars, $wp_wml_int_items, $otw_wml_plugin_url;
 
 
 //validate that this sidebar exists
@@ -127,7 +127,7 @@ if( isset( $_POST['otw_action'] ) && ( $_POST['otw_action'] == 'update' ) ){
 						
 						foreach( $wp_all_items as $wp_all_item ){
 							
-							$wp_sb_item_id = otw_wp_item_attribute( $_POST['item_type'], 'ID', $wp_all_item );
+							$wp_sb_item_id = otw_wml_wp_item_attribute( $_POST['item_type'], 'ID', $wp_all_item );
 							if( !isset( $otw_widget_settings[ $sidebar ][ $_POST['item_type'] ][ $wp_sb_item_id ] ) ){
 								
 								$otw_widget_settings[ $sidebar ][ $_POST['item_type'] ][ $wp_sb_item_id ] = array();
@@ -168,7 +168,7 @@ if( isset( $_POST['otw_action'] ) && ( $_POST['otw_action'] == 'update' ) ){
 						
 						foreach( $wp_all_items as $wp_all_item ){
 							
-							$wp_sb_item_id = otw_wp_item_attribute( $_POST['item_type'], 'ID', $wp_all_item );
+							$wp_sb_item_id = otw_wml_wp_item_attribute( $_POST['item_type'], 'ID', $wp_all_item );
 							if( isset( $otw_widget_settings[ $sidebar ][ $_POST['item_type'] ][ $wp_sb_item_id ]['exclude_widgets'][ $widget ] ) ){
 								unset( $otw_widget_settings[ $sidebar ][ $_POST['item_type'] ][ $wp_sb_item_id ]['exclude_widgets'][ $widget ] );
 							}
@@ -226,17 +226,17 @@ function otw_sidebar_item_all_class( $type, $sidebar, $widget, $wp_item_type ){
 }
 
 
-foreach( $wp_int_items as $wp_item_type => $wp_item_data ){
+foreach( $wp_wml_int_items as $wp_item_type => $wp_item_data ){
 	
 	if( is_array( $otw_sidebars ) && array_key_exists( $sidebar, $otw_sidebars ) ){
 	
 		if( isset( $wp_registered_sidebars[ $sidebar ]['validfor'][ $wp_item_type ] )  && count( $wp_registered_sidebars[ $sidebar ]['validfor'][ $wp_item_type ] )){
-			$wp_int_items[ $wp_item_type ][0] = array( 1 );
+			$wp_wml_int_items[ $wp_item_type ][0] = array( 1 );
 		}else{
-			$wp_int_items[ $wp_item_type ][0] = array();
+			$wp_wml_int_items[ $wp_item_type ][0] = array();
 		}
 	}else{
-		$wp_int_items[ $wp_item_type ][0] = array( 1 );
+		$wp_wml_int_items[ $wp_item_type ][0] = array( 1 );
 	}
 }
 
@@ -251,9 +251,9 @@ foreach( $wp_int_items as $wp_item_type => $wp_item_data ){
 		<?php _e( 'Template hierarchy Page includes all pages.', 'otw_sbm' )?></p>
 	</div>
 </div>
-<?php if( is_array( $wp_int_items ) && count( $wp_int_items ) ){?>
+<?php if( is_array( $wp_wml_int_items ) && count( $wp_wml_int_items ) ){?>
 	
-	<?php foreach( $wp_int_items as $wp_item_type => $wp_item_data ){?>
+	<?php foreach( $wp_wml_int_items as $wp_item_type => $wp_item_data ){?>
 		
 		<?php if( is_array( $wp_item_data[0] ) && count( $wp_item_data[0] ) ){?>
 			<div class="meta-box-sortables metabox-holder">
