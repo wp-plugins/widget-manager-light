@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, conditional tags, Context, filter, hide widgets, show widget, widget, sidebar, widget area, custom layout, relevant content, sidebars, widgets, logic
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.4
+Stable tag: 1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,9 +61,14 @@ Please refer to [online documentation page](http://otwthemes.com/online-document
 
 == Changelog ==
 
-= 1.4 =
+Updating to versiion 1.3 or higher requires deactivation of the old version first! More info [here](http://otwthemes.com/updating-widgetize-pages-light-to-1-5-version-sidebar-manager-light-to-1-3-widget-manager-light-to-1-3/)
 
-Updating to versiion 1.3 or higher requires deactivation of the old version first! More info [here](http://otwthemes.com/updating-widgetize-pages-light-to-1-5-version-sidebar-manager-light-to-1-3-widget-manager-light-to-1-3/)  
+= 1.5 =
+
+* Updated: WPML plugin translated and not translated languages display
+* Updated: WPML plugin function registration verification
+
+= 1.4 =
 
 * Added: WPML plugin support
 * Added: WooCommerce plugin support
@@ -75,8 +80,6 @@ Updating to versiion 1.3 or higher requires deactivation of the old version firs
 * Updated: Better compatibility on a single WP installation for Widgetize Pages Light, Sidebar Manager Light, Widget Manager Light, Sidebar Widget Manager full version
 
 = 1.3 =
-
-Updating to versiion 1.3. requires deactivation of the old version first! More info [here](http://otwthemes.com/updating-widgetize-pages-light-to-1-5-version-sidebar-manager-light-to-1-3-widget-manager-light-to-1-3/)  
 
 * Added: Full support for posts, categories, tags, archives, custom post types, custom taxonomies, page templates, WordPress service pages, etc.
 * Added: Convinient filters
