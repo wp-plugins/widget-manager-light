@@ -235,11 +235,18 @@ function otw_wml_sidebar_add_items(){
 		$wp_wml_int_items['wpmllanguages'][0] = array();
 		$wp_wml_int_items['wpmllanguages'][1] = __( 'WPML plugin language', 'otw_sbm' );
 		$wp_wml_int_items['wpmllanguages'][2] = __( 'All WPML plugin languages', 'otw_sbm' );
-	}elseif( otw_installed_plugin( 'bbpress' ) ){
+	}
+	if( otw_installed_plugin( 'bbpress' ) ){
 		$wp_wml_int_items['bbp_page'] = array();
 		$wp_wml_int_items['bbp_page'][0] = array();
 		$wp_wml_int_items['bbp_page'][1] = __( 'bbPress pages', 'otw_sbm' );
 		$wp_wml_int_items['bbp_page'][2] = __( 'All bbPress pages', 'otw_sbm' );
+	}
+	if( otw_installed_plugin( 'buddypress' ) ){
+		$wp_wml_int_items['buddypress_page'] = array();
+		$wp_wml_int_items['buddypress_page'][0] = array();
+		$wp_wml_int_items['buddypress_page'][1] = __( 'BuddyPress pages', 'otw_sbm' );
+		$wp_wml_int_items['buddypress_page'][2] = __( 'All BuddyPress pages', 'otw_sbm' );
 	}
 }
 

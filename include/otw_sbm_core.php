@@ -234,11 +234,24 @@ if( !function_exists( 'otw_get_current_object' ) ){
 		
 		wp_reset_query();
 		
+		if( otw_installed_plugin( 'buddypress' ) ){
+			global $bp;
+		}
+		
 		if( is_page() ){
 			$object = 'page';
 			$query_object = $wp_query->get_queried_object();
 			
 			$object_id = $query_object->ID;
+			
+			if( otw_installed_plugin( 'buddypress' ) ){
+				
+				if( isset( $bp->pages->activity ) && ( $bp->pages->activity->id == $object_id ) ){
+					$object = 'buddypress_page';
+				}elseif( isset( $bp->pages->members ) && ( $bp->pages->members->id  == $object_id ) ){
+					$object = 'buddypress_page';
+				}
+			}
 			
 			if( is_page_template() ){
 				$template_string = get_page_template();
@@ -399,6 +412,12 @@ if( !function_exists( 'otw_get_current_object' ) ){
 				//bbpress pages
 				$object = 'bbp_page';
 				$object_id = 'forums';
+			}elseif( otw_installed_plugin( 'buddypress' ) && isset( $wp_query->post ) && isset( $wp_query->queried_object )&& isset( $wp_query->queried_object->ID ) && $wp_query->queried_object->ID && isset( $bp->pages->activity ) && ( $bp->pages->activity->id == $wp_query->queried_object->ID ) ){
+				$object = 'buddypress_page';
+				$object_id = $wp_query->queried_object->ID;
+			}elseif( otw_installed_plugin( 'buddypress' ) && isset( $wp_query->post ) && isset( $wp_query->queried_object ) && isset( $wp_query->queried_object->ID ) && $wp_query->queried_object->ID && isset( $bp->pages->members ) && ( $bp->pages->members->id == $wp_query->queried_object->ID ) ){
+				$object = 'buddypress_page';
+				$object_id = $wp_query->queried_object->ID;
 			}
 		}else{
 			if( !$object ){
@@ -905,6 +924,23 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 						add_filter( 'posts_where', 'otw_sbm_post_by_title' );
 					}
 					
+					$posts_not_in = array();
+					if( otw_installed_plugin( 'buddypress' ) ){
+						
+						global $bp;
+						
+						if( isset( $bp->pages->activity ) && $bp->pages->activity->id ){
+							$posts_not_in[] = $bp->pages->activity->id;
+						}
+						if( isset( $bp->pages->members ) && $bp->pages->members->id ){
+							$posts_not_in[] = $bp->pages->members->id;
+						}
+					}
+					
+					if( count( $posts_not_in ) ){
+						$args['post__not_in'] = $posts_not_in;
+					}
+					
 					$the_query = new WP_Query( $args );
 					
 					$all_items = count( $the_query->posts );
@@ -1090,6 +1126,42 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 						return array( $all_items, $items );
 					}
 				break;
+			case 'buddypress_page':
+					if( otw_installed_plugin( 'buddypress' ) ){
+						global $bp;
+						$buddypress_pages = array();
+						
+						if( isset( $bp->pages->activity ) && $bp->pages->activity->id ){
+							$buddypress_pages[] = array( 'id' => $bp->pages->activity->id, 'name' => $bp->pages->activity->title.' '.__( 'page', 'otw_sbm' ) );
+						}
+						if( isset( $bp->pages->members ) && $bp->pages->members->id ){
+							$buddypress_pages[] = array( 'id' => $bp->pages->members->id, 'name' => $bp->pages->members->title.' '.__( 'pages', 'otw_sbm' ) );
+						}
+						
+						$all_items = count( $buddypress_pages );
+						
+						$items = array();
+						foreach( $buddypress_pages as $buddypress_page ){
+							
+							if( $string_filter ){
+								
+								if( stripos( $buddypress_page['name'], $string_filter ) === false ){
+									continue;
+								}
+							}
+							
+							$item = new stdClass();
+							$item->ID = $buddypress_page['id'];
+							$item->name = $buddypress_page['name'];
+							
+							$items[] = $item;
+							
+						}
+						return array( $all_items, $items );
+					}
+					
+				break;
+
 			default:
 					
 					if( preg_match( "/^cpt_(.*)$/", $type, $matches ) ){
@@ -1404,6 +1476,17 @@ if( !function_exists( 'otw_installed_plugin' ) ){
 			case 'wpml':
 					if( function_exists( 'icl_get_languages' ) ){
 						$installed = true;
+					}
+				break;
+			case 'buddypress':
+					if( class_exists( 'BuddyPress' ) ){
+						
+						global $bp;
+						
+						if( strtolower( get_class( $bp ) ) == 'buddypress' )
+						{
+							$installed = true;
+						}
 					}
 				break;
 		}
