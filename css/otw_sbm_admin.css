@@ -7,7 +7,7 @@ div.otw_dialog_content div.postbox{
 	width: 100%;
 }
 h3.sitem_header{
-	cursor: default !important;
+	cursor: pointer !important;
 }
 div.sitem_toggle{
 	cursor: pointer !important;
@@ -27,28 +27,33 @@ div.sitems p{
 }
 div.sitems p.all{
 	border-bottom: 1px solid #d4d4d4;
+	border-top:1px solid #D4D4D4;
 }
-div.sitems p.sitem_selected{
-	background: url( ../images/selected.gif ) no-repeat right center;
+div.sitems p.sitem_selected a{
+	background: url( ../images/swm-selected.png ) no-repeat 10px center;
+	font-weight: bold;
 }
-div.sitems p.sitem_notselected{
-	background: url( ../images/not_selected.gif ) no-repeat right center;
+div.sitems p.sitem_notselected a{
+	background: url( ../images/swm-notselected.png ) no-repeat 10px center;
 }
-div.sitems p.sitem_loading{
-	background: url( ../images/loading.gif ) no-repeat right center;
+div.sitems p.sitem_loading a{
+	background: url( ../images/loading.gif ) no-repeat 10px center;
 }
 div.sitems p a{
 	display: block;
-	padding-left: 25px;
+	padding: 5px 0 5px 30px;
 	text-decoration: none;
 }
 div.sitems p a:hover{
-	background: url( '../images/current.gif' ) no-repeat left center;
 	text-decoration: underline;
+	background-color: #EEEEEE;
 }
 div.sitems p input{
 	float: left;
 	visibility: hidden;
+}
+div.lf_items p a{
+	color: #21759B !important;
 }
 div.d_info p{
 	margin: 0px;
@@ -102,6 +107,35 @@ div.all_vis_lnks input.q_filter{
 	margin: 3px 2px 0 0;
 	color: #cccccc;
 }
+div.otw_sbm_all_links a.all_vis{
+	color: #21759B !important;
+}
+div.otw_sbm_all_links a.all_invis{
+	color: #21759B !important;
+}
+div.man_all_vis_lnks{
+	float: left;
+	width: 100%;
+	margin: 0 0 5px 0;
+}
+div.man_all_vis_lnks div.sitem_loading{
+	background: url("../images/loading.gif") no-repeat scroll left center transparent;
+	clear: both;
+	float: right;
+	width: 100%;
+}
+div.man_all_vis_lnks div input.otw_sbm_q_filter{
+	float: right;
+	width: 98%;
+	margin: 3px 2px 0 10px;
+	color: #cccccc;
+}
+div.otw_sbm_selected_items{
+	color: #666666;
+	margin-left: 25px;
+	display: none;
+}
+
 div.mto{
 	height: 310px;
 	overflow: hidden;
@@ -112,6 +146,134 @@ div.sitems div.more_items{
 	color: #cdcdcd;
 	padding: 2px;
 }
+div.sitems div.otw_app_loading{
+	float: right;
+	height: 27px;
+	width: 30px;
+	display: none;
+	background: url("../images/loading.gif") no-repeat scroll center center transparent;
+}
 div.visupdated{
 	margin: 10px 0;
+}
+div.otw_sidebar_item_filter{
+	border: 1px solid #E5E5E5;
+	padding: 4px 0;
+	margin: 10px 0 10px 0;
+	background-color: #F0F0F0;
+	float: left;
+	width: 100%;
+}
+div.otw_sidebar_item_filter label{
+	float: left;
+	margin-right: 10px;
+	margin-left: 10px;
+	margin-top: 3px;
+}
+div.otw_sidebar_item_filter .otw_sidebar_filter_search{
+	float: left;
+	margin-left: 5px;
+}
+div.otw_sidebar_item_filter .otw_sidebar_filter_show{
+	float: right;
+}
+div.otw_sidebar_item_filter .otw_sidebar_filter_order{
+	float: right;
+}
+div.otw_sidebar_item_filter .otw_sidebar_filter_clear{
+	float: right;
+}
+div.otw_sidebar_item_filter .otw_sidebar_filter_clear a{
+	text-decoration: none;
+	margin: 3px 10px 0 15px;
+	display: block;
+}
+div.otw_sidebar_item_filter.sitem_loading{
+	background: url( ../images/loading.gif ) no-repeat left center #F0F0F0;
+}
+div.otw_sidebar_item_pager{
+	border-top: 1px solid #E5E5E5;
+	overflow: hidden;
+	padding: 5px 0;
+	margin-top: 15px;
+	clear: both;
+}
+div.otw_sidebar_item_pager div.otw_sidebar_pager_links{
+	float: left;
+	margin-top: 3px;
+	margin-left: 15px;
+}
+div.otw_sidebar_item_pager div.otw_sidebar_pager_links a{
+	text-decoration: none;
+	color: #222222 !important;
+	margin-right: 5px;
+}
+div.otw_sidebar_item_pager div.otw_sidebar_pager_links a.otw_selected_page{
+	color: #21759B !important;
+}
+div.otw_sidebar_item_pager div.otw_sidebar_pager_items{
+	float: right;
+}
+div.otw_sidebar_item_pager div.otw_sidebar_pager_items label{
+	float: left;
+	margin-right: 5px;
+	margin-top: 3px;
+}
+div.otw_sidebar_item_pager div.otw_sidebar_pager_items select{
+	margin-right: 15px;
+}
+div.otw_sbm_all_actions{
+	clear: both;
+	float: left;
+	width: 100%;
+	border-bottom: 1px solid #E5E5E5;
+	margin-bottom: 5px;
+}
+div.otw_sbm_all_actions .otw_sbm_all_links{
+	float: left;
+	margin-bottom: 8px;
+}
+div.otw_sbm_all_actions .otw_sbm_selected_items{
+	float: right;
+	margin-bottom: 8px;
+}
+div.otw_sbm_all_actions .otw_sbm_all_links a{
+	text-decoration: none;
+}
+/*widget visibility*/
+div.otw_sidebar_wv_item_filter{
+	border: 1px solid #E5E5E5;
+	padding: 4px 0;
+	margin: 10px 0 10px 0;
+	background-color: #F0F0F0;
+	float: left;
+	width: 100%;
+}
+div.otw_sidebar_wv_item_filter label{
+	float: left;
+	margin-right: 10px;
+	margin-left: 10px;
+	margin-top: 3px;
+}
+div.otw_sidebar_wv_item_filter .otw_sidebar_wv_filter_search{
+	float: left;
+	margin-left: 8px;
+}
+div.otw_sidebar_wv_item_filter .otw_sidebar_wv_filter_show{
+	float: right;
+}
+div.otw_sidebar_wv_item_filter .otw_sidebar_wv_filter_order{
+	float: right;
+}
+div.otw_sidebar_wv_item_filter .otw_sidebar_wv_filter_clear{
+	float: right;
+}
+div.otw_sidebar_wv_item_filter .otw_sidebar_wv_filter_clear a{
+	margin: 3px 10px 0 15px;
+	display: block;
+	text-decoration: none;
+	color: #21759B !important;
+}
+div.otw_sidebar_wv_item_filter.sitem_loading{
+	background: url( ../images/loading.gif ) no-repeat left center #F0F0F0;
 }

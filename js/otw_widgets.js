@@ -45,15 +45,58 @@ function otw_init_widgets(){
 							
 							if( !appearence_links.length )
 							{
-								var req_url = 'admin-ajax.php?action=otw_wml_widget_dialog&sidebar=' + sidebar_id + '&widget=' + widget_id;
-								
-								new_action = jQuery( '<input type="button" class="button otw_appearence thickbox" name="Set Visibility" value="Set Visibility">' );
+								new_action = jQuery( '<input type="button" class="button otw_appearence" name="Set Visibility" value="Set Visibility">' );
 								new_action[0].widget_id = widget_id;
 								new_action[0].sidebar_id = sidebar_id;
-								new_action[0].href= req_url;
-								
+								new_action.click( function(){
+									
+									
+									var req_url = 'admin-ajax.php?action=otw_wml_widget_dialog&sidebar=' + this.sidebar_id + '&widget=' + this.widget_id;
+									
+									jQuery.post( req_url, { 'widget_id': this.widget_id, 'sidebar_id': this.sidebar_id}, function(b){
+										
+										jQuery( "#otw-dialog").remove();
+										var cont = jQuery( '<div id="otw-dialog">' + b + '</div>' );
+										jQuery( "body").append( cont );
+										jQuery( "#otw-dialog").hide();
+										
+										tb_position = function(){
+											
+											var isIE6 = typeof document.body.style.maxHeight === "undefined";
+											var b=jQuery(window).height();
+											jQuery("#TB_window").css({marginLeft: '-' + parseInt((TB_WIDTH / 2),10) + 'px', width: TB_WIDTH + 'px'});
+											if ( ! isIE6 ) { // take away IE6
+												jQuery("#TB_window").css({marginTop: '-' + parseInt((TB_HEIGHT / 2),10) + 'px'});
+											}
+											if( !cont[0].saved_h ){
+												cont[0].saved_h = jQuery( '#TB_window' ).css( 'height' );
+												cont[0].saved_t = jQuery( '#TB_window' ).css( 'top' );
+												cont[0].saved_mt = jQuery( '#TB_window' ).css( 'margin-top' );
+												cont[0].saved_w = jQuery( '#TB_ajaxContent' ).css( 'width' );
+											}else{
+												jQuery( '#TB_window' ).css( 'height', cont[0].saved_h );
+												jQuery( '#TB_window' ).css( 'top', cont[0].saved_t );
+												jQuery( '#TB_window' ).css( 'margin-top', cont[0].saved_mt );
+												jQuery( '#TB_ajaxContent' ).css( 'width', cont[0].saved_w );
+											}
+											
+										}
+										jQuery( window ).resize( function(){
+											tb_position();
+										} );
+										
+										var f=jQuery(window).width();
+										b=jQuery(window).height();
+										f=850<f?850:f;
+										f-=80;
+										/*b-=84;*/
+										b=760<b?760:b;
+										b-=110; 
+										
+										tb_show( 'Some Title', "#TB_inline?width="+f+"&height="+b+"&inlineId=otw-dialog" );
+									} );
+								} );
 								object.append( new_action );
-								tb_init( new_action );
 							};
 						});
 					};

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, conditional tags, Context, filter, hide widgets, show widget, widget, sidebar, widget area, custom layout, relevant content, sidebars, widgets, logic
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.6
+Stable tag: 1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,7 +30,7 @@ The interface is very intuitive and requires no coding knowledge at all.
 Upgrade to the full version of [Sidebar and Widget Manager](http://otwthemes.com/product/sidebar-widget-manager-for-wordpress/?utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml) |
 [Demo site](http://otwthemes.com/demos/1ts/?item=Sidebar%20Widget%20Manager&utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml) | 
 [Video overview](http://www.youtube.com/watch?v=WT9UK1eX4C8)
-Sidebar and Widget Manager has easy column [interface for Widgetizing Pages](http://otwthemes.com/widgetizing-pages-in-wordpress-has-never-been-easier/?utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml)
+[Create responsive layouts in minutes, drag & drop interface, feature rich](http://otwthemes.com/widgetizing-pages-in-wordpress-can-be-even-easier-and-faster?utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml)
 
 How Widget Manager Light works:
 
@@ -62,6 +62,11 @@ Please refer to [online documentation page](http://otwthemes.com/online-document
 == Changelog ==
 
 Updating to versiion 1.3 or higher requires deactivation of the old version first! More info [here](http://otwthemes.com/updating-widgetize-pages-light-to-1-5-version-sidebar-manager-light-to-1-3-widget-manager-light-to-1-3/)
+
+= 1.7 =
+
+* Updated: new nicer interface
+* Added: More flexible filters
 
 = 1.6 =
 

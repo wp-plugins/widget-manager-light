@@ -4,7 +4,7 @@ Plugin Name: Widget Manager Light
 Plugin URI: http://otwthemes.com/?utm_source=wp.org&utm_medium=admin&utm_content=site&utm_campaign=wml
 Description:  Get control over widgets visibility. You can now customize each page with specific widgets that are relative to the content on that page. No coding required.
 Author: OTWthemes.com
-Version: 1.6
+Version: 1.7
 Author URI: http://otwthemes.com/?utm_source=wp.org&utm_medium=admin&utm_content=site&utm_campaign=wml
 */
 $wp_wml_int_items = array(
@@ -40,6 +40,9 @@ function otw_wml_options(){
 /** plugin info
   *
   */
+function otw_wml_sidebars_widget_dialog(){
+	require_once( 'include/otw_widget_dialog.php' );
+}
 function otw_wml_info(){
 	require_once( 'include/otw_sidebar_info.php' );
 }
@@ -55,9 +58,10 @@ function otw_wml_admin_actions(){
 	
 	global $otw_wml_plugin_url;
 	
-	add_menu_page('Widget Manager', 'Widget Manager', 'manage_options', 'otw-wml', 'otw_wml_options', $otw_wml_plugin_url.'/images/application_side_boxes.png' );
+	add_menu_page('Widget Manager', 'Widget Manager', 'manage_options', 'otw-wml', 'otw_wml_options', $otw_wml_plugin_url.'/images/otw-sbm-icon.png' );
 	add_submenu_page( 'otw-wml', 'Options', 'Options', 'manage_options', 'otw-wml', 'otw_wml_options' );
 	add_submenu_page( 'otw-wml', 'Info', 'Info', 'manage_options', 'otw-wml-info', 'otw_wml_info' );
+	add_submenu_page( __FILE__, __('Set up widget appearance', 'otw_sbm'), __('Set up widget appearance', 'otw_sbm'), 'manage_options', 'otw-wml-widget-dialog', 'otw_wml_sidebars_widget_dialog' );
 }
 
 function otw_wml_items_by_type(){
@@ -78,10 +82,13 @@ function enqueue_wml_scripts( $requested_page ){
 				global $otw_plugin_options;
 				
 				if( isset( $otw_plugin_options['activate_appearence'] ) && $otw_plugin_options['activate_appearence'] ){
-					wp_enqueue_script("otw_widgets", $otw_wml_plugin_url.'/js/otw_widgets.js' , array( 'jquery', 'jquery-ui-dialog', 'thickbox' ), '1.1' );
+					wp_enqueue_script("otw_widgets", $otw_wml_plugin_url.'/js/otw_widgets.js' , array( 'jquery', 'jquery-ui-dialog', 'thickbox' ), '3.0' );
 					wp_enqueue_script("otw_widget_appearence", $otw_wml_plugin_url.'/js/otw_widgets_appearence.js' , array( 'jquery' ), '1.2' );
 					wp_enqueue_style (  'wp-jquery-ui-dialog' );
 				}
+			break;
+		case 'admin_page_otw-wml-widget-dialog':
+				wp_enqueue_script("otw_widget_appearence", $otw_wml_plugin_url.'/js/otw_widgets_appearence.js' , array( 'jquery' ), '3.0' );
 			break;
 	}
 }
@@ -115,5 +122,5 @@ if( is_admin() ){
 /** 
  *call init plugin function
  */
-add_action('init', 'otw_wml_plugin_init', 100 );
+add_action('init', 'otw_wml_plugin_init', 102 );
 ?>

@@ -244,8 +244,6 @@ foreach( $wp_wml_int_items as $wp_item_type => $wp_item_data ){
 <div class="otw_dialog_content" id="otw_dialog_content">
 
 <div class="d_info">
-	<p><img src="<?php echo $otw_wml_plugin_url.'/images/selected.gif' ?>" alt=""/><?php _e('Means the widget will be displayed on that page, post, category, etc.');?></p>
-	<p><img src="<?php echo $otw_wml_plugin_url.'/images/not_selected.gif' ?>" alt=""/><?php _e('Means  the widget will be hidden form that page, post, category, etc');?></p>
 	<div class="updated visupdated">
 		<p><?php _e( 'A selected page template includes all pages using that template.', 'otw_sbm' )?><br />
 		<?php _e( 'Template hierarchy Page includes all pages.', 'otw_sbm' )?></p>
@@ -258,29 +256,57 @@ foreach( $wp_wml_int_items as $wp_item_type => $wp_item_data ){
 		<?php if( is_array( $wp_item_data[0] ) && count( $wp_item_data[0] ) ){?>
 			<div class="meta-box-sortables metabox-holder">
 				<div class="postbox">
-					<div title="<?php _e('Click to toggle')?>" class="handlediv sitem_toggle"><br></div>
-					<h3 class="hndle sitem_header"><span><?php echo $wp_item_data[1]?></span></h3>
+					<div title="<?php _e('Click to toggle', 'otw_sbm')?>" class="handlediv sitem_toggle"><br></div>
+					<h3 class="hndle sitem_header" title="<?php _e('Click to toggle', 'otw_sbm')?>"><span><?php echo $wp_item_data[1]?></span></h3>
 					
 					<div class="inside sitems<?php if( count( $wp_item_data[0] ) > 15 ){ echo ' mto';}?>" id="otw_sbm_app_type_<?php echo $wp_item_type?>" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>" >
-						<div class="all_vis_lnks">
-							<a href="javascript:;" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>|vis" class="all_vis<?php echo otw_sidebar_item_all_class( 'vis', $sidebar, $widget, $wp_item_type )?>"><?php _e( 'all visible' )?></a>
-							<a href="javascript:;" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>|invis"class="all_invis<?php echo otw_sidebar_item_all_class( 'invis', $sidebar, $widget, $wp_item_type )?>"><?php _e( 'all invisible' )?></a>
-							<?php if( !in_array( $wp_item_type, array( 'templatehierarchy', 'pagetemplate', 'archive' ) ) ){?>
-									<input type="text" class="q_filter" value="<?php _e('Type to search' );?>"/>
-									<div class="otw_app_loading"></div>
-							<?php }?>
+						<div class="otw_sidebar_wv_item_filter">
+							<div id="otw_type_page_wv_search" class="otw_sidebar_wv_filter_search">
+								<label for="otw_type_<?php echo $wp_item_type ?>_search_field"><?php _e( 'Search', 'otw_sbm' )?></label>
+								<input type="text" id="otw_type_<?php echo $wp_item_type ?>_search_field" class="otw_sbm_wv_q_filter" value=""/>
+							</div>
+							<div id="otw_type_page_wv_clear" class="otw_sidebar_wv_filter_clear">
+								<a href="javascript:;" id="otw_type_<?php echo $wp_item_type ?>_wv_clear"><?php _e( 'reset', 'otw_sbm' )?></a>
+							</div>
+							<div id="otw_type_page_wv_order" class="otw_sidebar_wv_filter_order">
+								<label for="otw_type_<?php echo $wp_item_type ?>_order_field"><?php _e( 'Order', 'otw_sbm' )?></label>
+								<select id="otw_type_<?php echo $wp_item_type ?>_order_field">
+									<?php $sort_options = otw_wml_get_item_sort_options( $wp_item_type);?>
+									<?php if( count( $sort_options ) ){?>
+										<?php foreach( $sort_options as $s_key => $s_value ){ ?>
+											<option value="<?php echo $s_key?>"><?php echo $s_value?></option>
+										<?php }?>
+									<?php }?>
+								</select>
+							</div>
+							<div id="otw_type_page_wv_show" class="otw_sidebar_wv_filter_show">
+								<label for="otw_type_<?php echo $wp_item_type ?>_show_field"><?php _e( 'Show', 'otw_sbm' )?></label>
+								<select id="otw_type_<?php echo $wp_item_type ?>_show_field">
+									<option value="all"><?php _e( 'All', 'otw_sbm' )?></option>
+									<option value="all_selected"><?php _e( 'All Selected', 'otw_sbm' )?></option>
+									<option value="all_unselected"><?php _e( 'All Unselected', 'otw_sbm' )?></option>
+								</select>
+							</div>
+							
 						</div>
-						<?php if( count( $wp_item_data[0] ) > 15 ) {?>
-							<div class="more_items"><?php echo sprintf( __( 'Showing 15 of %d items. Please use the filter box to filter them out' ), count( $wp_item_data[0] ) );?></div>
-						<?php }?>
+						<div class="otw_sbm_all_actions">
+							<div class="otw_sbm_all_links">
+								<a href="javascript:;" class="otw_sbm_select_all_items all_vis" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>|vis"><?php _e( 'Select All', 'otw_sbm' )?></a>
+									|
+								<a href="javascript:;" class="otw_sbm_unselect_all_items all_invis" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>|invis"><?php _e( 'Unselect All', 'otw_sbm' )?></a>
+							</div>
+							<div class="otw_sbm_selected_items">
+								<span class="otw_selected_items_number"></span>&nbsp;<span class="otw_seleted_items_plural"><?php _e( 'items are', 'otw_sbm' );?></span><span class="otw_selected_items_singular"><?php _e('item is', 'otw_sbm' )?></span>&nbsp;<?php _e( 'selected', 'otw_sbm' )?>
+							</div>
+						</div>
 						<div class="lf_items">
 						</div>
 						
 					</div>
 					
 				</div>
-			
 			</div>
+
 		<?php }?>
 	<?php }?>
 	<script type="text/javascript">

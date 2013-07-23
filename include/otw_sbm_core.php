@@ -902,17 +902,93 @@ if( !function_exists( 'otw_sidebars_widgets' ) ){
  *  @param array attribute / type
  *  @return array
  **/
-if (!function_exists( "otw_sbm_get_filtered_items" )){
-	function otw_sbm_get_filtered_items( $type, $filter, $sidebar_id, $displayed_items = 20, $id_list = array() ){
+if (!function_exists( "otw_wml_get_filtered_items" )){
+	function otw_wml_get_filtered_items( $type, $filter, $sidebar_id, $displayed_items = 20, $id_in_list = array(), $id_not_in_list = array(), $show = 'all', $order = 'a_z', $current_page = 0 ){
 	
 		global $string_filter, $id_list_filter;
 		
 		$string_filter = $filter;
-		$id_list_filter = $id_list;
+		$id_list_filter = $id_in_list;
+		$pager_data = array();
 		
 		switch( $type )
 		{
 			case 'page':
+					$args = array();
+					$args['post_type']      = $type;
+					$args['posts_per_page'] = -1;
+					if( count( $id_list_filter ) ){
+						$args['post__in']       = $id_list_filter;
+					}
+					if( $string_filter ){
+						add_filter( 'posts_where', 'otw_sbm_post_by_title' );
+					}
+					
+					if( otw_installed_plugin( 'buddypress' ) ){
+						
+						global $bp;
+						
+						if( isset( $bp->pages->activity ) && $bp->pages->activity->id ){
+							$id_not_in_list[] = $bp->pages->activity->id;
+						}
+						if( isset( $bp->pages->members ) && $bp->pages->members->id ){
+							$id_not_in_list[] = $bp->pages->members->id;
+						}
+					}
+					
+					if( count( $id_not_in_list ) ){
+						$args['post__not_in'] = $id_not_in_list;
+					}
+					
+					$the_query = new WP_Query( $args );
+					
+					$all_items = count( $the_query->posts );
+					
+					$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
+					
+					$args['offset'] = $pager_data['first'];
+					$args['posts_per_page'] = ($displayed_items)?$displayed_items:-1;
+					
+					switch( $order )
+					{
+						case 'a_z':
+								$args['orderby']        = 'title';
+								$args['order']          = 'ASC';
+							break;
+						case 'z_a':
+								$args['orderby']        = 'title';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_latest':
+								$args['orderby']        = 'date';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_oldest':
+								$args['orderby']        = 'date';
+								$args['order']          = 'ASC';
+							break;
+						case 'modified_latest':
+								$args['orderby']        = 'modified';
+								$args['order']          = 'DESC';
+							break;
+						case 'modified_oldest':
+								$args['orderby']        = 'modified';
+								$args['order']          = 'ASC';
+							break;
+						default:
+								$args['orderby']        = 'ID';
+								$args['order']          = 'DESC';
+							break;
+					}
+					
+					$the_query = new WP_Query( $args );
+					
+					if( $string_filter ){
+						remove_filter('posts_where', 'otw_sbm_post_by_title');
+					}
+					
+					return array( $all_items, $the_query->posts, $pager_data );
+				break;
 			case 'post':
 					$args = array();
 					$args['post_type']      = $type;
@@ -924,30 +1000,49 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 						add_filter( 'posts_where', 'otw_sbm_post_by_title' );
 					}
 					
-					$posts_not_in = array();
-					if( otw_installed_plugin( 'buddypress' ) ){
-						
-						global $bp;
-						
-						if( isset( $bp->pages->activity ) && $bp->pages->activity->id ){
-							$posts_not_in[] = $bp->pages->activity->id;
-						}
-						if( isset( $bp->pages->members ) && $bp->pages->members->id ){
-							$posts_not_in[] = $bp->pages->members->id;
-						}
-					}
-					
-					if( count( $posts_not_in ) ){
-						$args['post__not_in'] = $posts_not_in;
+					if( count( $id_not_in_list ) ){
+						$args['post__not_in'] = $id_not_in_list;
 					}
 					
 					$the_query = new WP_Query( $args );
 					
 					$all_items = count( $the_query->posts );
 					
+					$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
+					
 					$args['posts_per_page'] = ($displayed_items)?$displayed_items:-1;
-					$args['orderby']        = 'ID';
-					$args['order']          = 'DESC';
+					
+					switch( $order )
+					{
+						case 'a_z':
+								$args['orderby']        = 'title';
+								$args['order']          = 'ASC';
+							break;
+						case 'z_a':
+								$args['orderby']        = 'title';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_latest':
+								$args['orderby']        = 'date';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_oldest':
+								$args['orderby']        = 'date';
+								$args['order']          = 'ASC';
+							break;
+						case 'modified_latest':
+								$args['orderby']        = 'modified';
+								$args['order']          = 'DESC';
+							break;
+						case 'modified_oldest':
+								$args['orderby']        = 'modified';
+								$args['order']          = 'ASC';
+							break;
+						default:
+								$args['orderby']        = 'ID';
+								$args['order']          = 'DESC';
+							break;
+					}
 					
 					$the_query = new WP_Query( $args );
 					
@@ -955,7 +1050,7 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 						remove_filter('posts_where', 'otw_sbm_post_by_title');
 					}
 					
-					return array( $all_items, $the_query->posts );
+					return array( $all_items, $the_query->posts, $pager_data );
 				break;
 			case 'category':
 			case 'postsincategory':
@@ -974,13 +1069,42 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 						$args['search'] = $string_filter;
 					}
 					
+					if( count( $id_not_in_list ) ){
+						sort( $id_not_in_list );
+						$args['exclude'] = $id_not_in_list;
+					}
+					
 					$all_items = count( get_categories( $args ) );
 					
-					$args['number']          = ($displayed_items)?$displayed_items:0;
-					$args['orderby']         = 'name';
-					$args['order']           = 'ASC';
+					$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
 					
-					return array( $all_items, get_categories( $args ) );
+					$args['offset'] = $pager_data['first'];
+					$args['number']          = ($displayed_items)?$displayed_items:0;
+					
+					switch( $order )
+					{
+						case 'a_z':
+								$args['orderby']        = 'name';
+								$args['order']          = 'ASC';
+							break;
+						case 'z_a':
+								$args['orderby']        = 'name';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_latest':
+								$args['orderby']        = 'ID';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_oldest':
+								$args['orderby']        = 'ID';
+								$args['order']          = 'ASC';
+							break;
+						default:
+								$args['orderby']        = 'ID';
+								$args['order']          = 'DESC';
+							break;
+					}
+					return array( $all_items, get_categories( $args ), $pager_data );
 				break;
 			case 'posttag':
 			case 'postsintag':
@@ -997,13 +1121,42 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 						$args['search'] = $string_filter;
 					}
 					
+					if( count( $id_not_in_list ) ){
+						sort( $id_not_in_list );
+						$args['exclude'] = $id_not_in_list;
+					}
+					
 					$all_items = count( get_terms( 'post_tag', $args ) );
 					
-					$args['number']          = ($displayed_items)?$displayed_items:0;
-					$args['orderby']         = 'name';
-					$args['order']           = 'ASC';
+					$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
 					
-					return array( $all_items, get_terms( 'post_tag', $args ) );
+					$args['offset'] 	 = $pager_data['first'];
+					$args['number']          = ($displayed_items)?$displayed_items:0;
+					
+					switch( $order )
+					{
+						case 'a_z':
+								$args['orderby']        = 'name';
+								$args['order']          = 'ASC';
+							break;
+						case 'z_a':
+								$args['orderby']        = 'name';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_latest':
+								$args['orderby']        = 'ID';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_oldest':
+								$args['orderby']        = 'ID';
+								$args['order']          = 'ASC';
+							break;
+						default:
+								$args['orderby']        = 'ID';
+								$args['order']          = 'DESC';
+							break;
+					}
+					return array( $all_items, get_terms( 'post_tag', $args ), $pager_data );
 				break;
 			case 'author_archive':
 					$args = array();
@@ -1018,21 +1171,136 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 						$args['search'] = '*'.$string_filter.'*';
 					}
 					
+					if( count( $id_not_in_list ) ){
+						sort( $id_not_in_list );
+						$args['exclude'] = $id_not_in_list;
+					}
+					
 					$all_items = count( get_users( $args ) );
 					
-					$args['number']          = ($displayed_items)?$displayed_items:0;
-					$args['orderby']         = 'display_name';
-					$args['order']           = 'ASC';
+					$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
 					
-					return array( $all_items, get_users( $args ) );
+					$args['offset'] 	 = $pager_data['first'];
+					$args['number']          = ($displayed_items)?$displayed_items:0;
+					
+					switch( $order )
+					{
+						case 'a_z':
+								$args['orderby']        = 'login';
+								$args['order']          = 'ASC';
+							break;
+						case 'z_a':
+								$args['orderby']        = 'login';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_latest':
+								$args['orderby']        = 'registered';
+								$args['order']          = 'DESC';
+							break;
+						case 'date_oldest':
+								$args['orderby']        = 'registered';
+								$args['order']          = 'ASC';
+							break;
+						default:
+								$args['orderby']        = 'ID';
+								$args['order']          = 'DESC';
+							break;
+					}
+					
+					return array( $all_items, get_users( $args ), $pager_data );
 				break;
-
 			case 'customposttype':
 			case 'templatehierarchy':
-			case 'pagetemplate':
 			case 'archive':
-					$items = otw_get_wp_items( $type );
-					return array( count( $items ), $items );
+					$all_items = otw_get_wp_items( $type );
+					$items = array();
+					foreach( $all_items as $item_key => $item_object ){
+					
+						if( $string_filter ){
+							if( ( stripos( $item_object->name, $string_filter ) === false ) ){
+								continue;
+							}
+						}
+						
+						if( count( $id_list_filter ) && !in_array( $item_object->ID, $id_list_filter ) && !in_array( 'all', $id_list_filter ) ){
+							continue;
+						}
+						if( count( $id_not_in_list ) && ( in_array( $item_object->ID, $id_not_in_list ) || in_array( 'all', $id_not_in_list ) ) ){
+							continue;
+						}
+						$items[] = $item_object;
+					}
+					$all_items = count( $items );
+					$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
+					
+					$sort_args = array();
+					switch( $order )
+					{
+						case 'a_z':
+								$sort_args['name'] = 'ASC';
+							break;
+						case 'z_a':
+								$sort_args['name'] = 'DESC';
+							break;
+						default:
+								$sort_args['name'] = 'ASC';
+							break;
+					}
+					
+					if( count( $items ) ){
+						
+						$items = otw_asort( $items, $sort_args );
+						if( $displayed_items ){
+							$items = array_slice( $items, $pager_data['first'], $displayed_items );
+						}
+					}
+					
+					return array( $all_items, $items, $pager_data );
+				break;
+			case 'pagetemplate':
+					$all_items = otw_get_wp_items( $type );
+					$items = array();
+					foreach( $all_items as $item_key => $item_object ){
+					
+						if( $string_filter ){
+							if( ( stripos( $item_object->name, $string_filter ) === false ) ){
+								continue;
+							}
+						}
+						if( count( $id_list_filter ) && !in_array( $item_object->script, $id_list_filter ) && !in_array( 'all', $id_list_filter ) ){
+							continue;
+						}
+						if( count( $id_not_in_list ) && ( in_array( $item_object->script, $id_not_in_list ) || in_array( 'all', $id_not_in_list ) ) ){
+							continue;
+						}
+						$items[] = $item_object;
+					}
+					$all_items = count( $items );
+					$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
+					
+					$sort_args = array();
+					switch( $order )
+					{
+						case 'a_z':
+								$sort_args['name'] = 'ASC';
+							break;
+						case 'z_a':
+								$sort_args['name'] = 'DESC';
+							break;
+						default:
+								$sort_args['name'] = 'ASC';
+							break;
+					}
+					
+					if( count( $items ) ){
+						
+						$items = otw_asort( $items, $sort_args );
+						if( $displayed_items ){
+							$items = array_slice( $items, $pager_data['first'], $displayed_items );
+						}
+					}
+					
+					return array( $all_items, $items, $pager_data );
 				break;
 			case 'userroles':
 					$items = array();
@@ -1049,6 +1317,7 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 							}
 						}
 						
+						
 						$item = new stdClass();
 						$item->ID = $u_role_code;
 						if( $u_role_code != 'notlogged' ){
@@ -1057,17 +1326,44 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 							$item->name = $u_role_name;
 						}
 						
+						if( count( $id_list_filter ) && !in_array( $item->ID, $id_list_filter ) && !in_array( 'all', $id_list_filter ) ){
+							continue;
+						}
+						if( count( $id_not_in_list ) && ( in_array( $item->ID, $id_not_in_list ) || in_array( 'all', $id_not_in_list ) ) ){
+							continue;
+						}
+						
 						$items[] = $item;
 						
-						if( $displayed_items > 0 && ( $displayed_items <= count( $items ) ) ){
+					}
+					$all_items = count( $items );
+					$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
+					
+					switch( $order )
+					{
+						case 'a_z':
+								$sort_args['name'] = 'ASC';
 							break;
+						case 'z_a':
+								$sort_args['name'] = 'DESC';
+							break;
+						default:
+								$sort_args['name'] = 'ASC';
+							break;
+					}
+					
+					if( count( $items ) ){
+						
+						$items = otw_asort( $items, $sort_args );
+						if( $displayed_items ){
+							$items = array_slice( $items, $pager_data['first'], $displayed_items );
 						}
 					}
 					
-					return array( count( $all_items ), $items );
+					return array( count( $all_items ), $items, $pager_data );
 				break;
 			case 'wpmllanguages':
-					if( function_exists( 'icl_get_languages' ) ){
+					if( otw_installed_plugin( 'wpml' ) ){
 						
 						$wpml_languages = icl_get_languages( 'skip_missing=0' );
 						
@@ -1087,10 +1383,40 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 							$item->ID = $wpml_lang['language_code'];
 							$item->name = '<img src="'.$wpml_lang['country_flag_url'].'" alt="'.$wpml_lang['language_code'].'" border="0"/>&nbsp;'.$wpml_lang['native_name'];
 							
-							$items[] = $item;
+							if( count( $id_list_filter ) && !in_array( $item->ID, $id_list_filter ) && !in_array( 'all', $id_list_filter ) ){
+								continue;
+							}
+							if( count( $id_not_in_list ) && ( in_array( $item->ID, $id_not_in_list ) || in_array( 'all', $id_not_in_list ) ) ){
+								continue;
+							}
 							
+							$items[] = $item;
 						}
-						return array( $all_items, $items );
+						
+						$all_items = count( $items );
+						$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
+						
+						switch( $order )
+						{
+							case 'a_z':
+									$sort_args['name'] = 'ASC';
+								break;
+							case 'z_a':
+									$sort_args['name'] = 'DESC';
+								break;
+							default:
+									$sort_args['name'] = 'ASC';
+								break;
+						}
+						
+						if( count( $items ) ){
+							
+							$items = otw_asort( $items, $sort_args );
+							if( $displayed_items ){
+								$items = array_slice( $items, $pager_data['first'], $displayed_items );
+							}
+						}
+						return array( $all_items, $items, $pager_data );
 					}
 				break;
 			case 'bbp_page':
@@ -1120,10 +1446,41 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 							$item->ID = $bbp_page['id'];
 							$item->name = $bbp_page['name'];
 							
-							$items[] = $item;
+							if( count( $id_list_filter ) && !in_array( $item->ID, $id_list_filter ) && !in_array( 'all', $id_list_filter ) ){
+								continue;
+							}
+							if( count( $id_not_in_list ) && ( in_array( $item->ID, $id_not_in_list ) || in_array( 'all', $id_not_in_list ) ) ){
+								continue;
+							}
 							
+							$items[] = $item;
 						}
-						return array( $all_items, $items );
+						
+						$all_items = count( $items );
+						$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
+						
+						switch( $order )
+						{
+							case 'a_z':
+									$sort_args['name'] = 'ASC';
+								break;
+							case 'z_a':
+									$sort_args['name'] = 'DESC';
+								break;
+							default:
+									$sort_args['name'] = 'ASC';
+								break;
+						}
+						
+						if( count( $items ) ){
+							
+							$items = otw_asort( $items, $sort_args );
+							if( $displayed_items ){
+								$items = array_slice( $items, $pager_data['first'], $displayed_items );
+							}
+						}
+						
+						return array( $all_items, $items, $pager_data );
 					}
 				break;
 			case 'buddypress_page':
@@ -1154,14 +1511,44 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 							$item->ID = $buddypress_page['id'];
 							$item->name = $buddypress_page['name'];
 							
-							$items[] = $item;
+							if( count( $id_list_filter ) && !in_array( $item->ID, $id_list_filter ) && !in_array( 'all', $id_list_filter ) ){
+								continue;
+							}
+							if( count( $id_not_in_list ) && ( in_array( $item->ID, $id_not_in_list ) || in_array( 'all', $id_not_in_list ) ) ){
+								continue;
+							}
 							
+							$items[] = $item;
 						}
-						return array( $all_items, $items );
+						
+						$all_items = count( $items );
+						$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
+						
+						switch( $order )
+						{
+							case 'a_z':
+									$sort_args['name'] = 'ASC';
+								break;
+							case 'z_a':
+									$sort_args['name'] = 'DESC';
+								break;
+							default:
+									$sort_args['name'] = 'ASC';
+								break;
+						}
+						
+						if( count( $items ) ){
+							
+							$items = otw_asort( $items, $sort_args );
+							if( $displayed_items ){
+								$items = array_slice( $items, $pager_data['first'], $displayed_items );
+							}
+						}
+						
+						return array( $all_items, $items, $pager_data );
 					}
 					
 				break;
-
 			default:
 					
 					if( preg_match( "/^cpt_(.*)$/", $type, $matches ) ){
@@ -1177,13 +1564,51 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 						if( $string_filter ){
 							add_filter( 'posts_where', 'otw_sbm_post_by_title' );
 						}
+						
+						if( count( $id_not_in_list ) ){
+							$args['post__not_in'] = $id_not_in_list;
+						}
+						
 						$the_query = new WP_Query( $args );
 						
 						$all_items = count( $the_query->posts );
 						
+						$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
+						
 						$args['posts_per_page'] = ($displayed_items)?$displayed_items:-1;
-						$args['orderby']        = 'ID';
-						$args['order']          = 'DESC';
+						
+						switch( $order )
+						{
+							case 'a_z':
+									$args['orderby']        = 'title';
+									$args['order']          = 'ASC';
+								break;
+							case 'z_a':
+									$args['orderby']        = 'title';
+									$args['order']          = 'DESC';
+								break;
+							case 'date_latest':
+									$args['orderby']        = 'date';
+									$args['order']          = 'DESC';
+								break;
+							case 'date_oldest':
+									$args['orderby']        = 'date';
+									$args['order']          = 'ASC';
+								break;
+							case 'modified_latest':
+									$args['orderby']        = 'modified';
+									$args['order']          = 'DESC';
+								break;
+							case 'modified_oldest':
+									$args['orderby']        = 'modified';
+									$args['order']          = 'ASC';
+								break;
+								
+							default:
+									$args['orderby']        = 'ID';
+									$args['order']          = 'DESC';
+								break;
+						}
 						
 						$the_query = new WP_Query( $args );
 						
@@ -1191,7 +1616,7 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 							remove_filter('posts_where', 'otw_sbm_post_by_title');
 						}
 						
-						return array( $all_items, $the_query->posts );
+						return array( $all_items, $the_query->posts, $pager_data );
 					}elseif( preg_match( "/^ctx_(.*)$/", $type, $matches ) ){
 						
 						$args = array();
@@ -1207,13 +1632,43 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 							$args['search'] = $string_filter;
 						}
 						
+						if( count( $id_not_in_list ) ){
+							sort( $id_not_in_list );
+							$args['exclude'] = $id_not_in_list;
+						}
+						
 						$all_items = count( get_terms( $matches[1], $args ) );
 						
-						$args['number']          = ($displayed_items)?$displayed_items:0;
-						$args['orderby']         = 'name';
-						$args['order']           = 'ASC';
+						$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
 						
-						return array( $all_items, get_terms( $matches[1], $args ) );
+						$args['offset'] = $pager_data['first'];
+						$args['number']          = ($displayed_items)?$displayed_items:0;
+						
+						switch( $order )
+						{
+							case 'a_z':
+									$args['orderby']        = 'name';
+									$args['order']          = 'ASC';
+								break;
+							case 'z_a':
+									$args['orderby']        = 'name';
+									$args['order']          = 'DESC';
+								break;
+							case 'date_latest':
+									$args['orderby']        = 'ID';
+									$args['order']          = 'DESC';
+								break;
+							case 'date_oldest':
+									$args['orderby']        = 'ID';
+									$args['order']          = 'ASC';
+								break;
+							default:
+									$args['orderby']        = 'ID';
+									$args['order']          = 'DESC';
+								break;
+						}
+						
+						return array( $all_items, get_terms( $matches[1], $args ), $pager_data );
 					}elseif( preg_match( "/(.*)_in_ctx_(.*)$/", $type, $matches ) ){
 						
 						$args = array();
@@ -1229,13 +1684,42 @@ if (!function_exists( "otw_sbm_get_filtered_items" )){
 							$args['search'] = $string_filter;
 						}
 						
+						if( count( $id_not_in_list ) ){
+							sort( $id_not_in_list );
+							$args['exclude'] = $id_not_in_list;
+						}
+						
 						$all_items = count( get_terms( $matches[2], $args ) );
 						
-						$args['number']          = ($displayed_items)?$displayed_items:0;
-						$args['orderby']         = 'name';
-						$args['order']           = 'ASC';
+						$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
 						
-						return array( $all_items, get_terms( $matches[2], $args ) );
+						$args['offset'] = $pager_data['first'];
+						$args['number']          = ($displayed_items)?$displayed_items:0;
+						
+						switch( $order )
+						{
+							case 'a_z':
+									$args['orderby']        = 'name';
+									$args['order']          = 'ASC';
+								break;
+							case 'z_a':
+									$args['orderby']        = 'name';
+									$args['order']          = 'DESC';
+								break;
+							case 'date_latest':
+									$args['orderby']        = 'ID';
+									$args['order']          = 'DESC';
+								break;
+							case 'date_oldest':
+									$args['orderby']        = 'ID';
+									$args['order']          = 'ASC';
+								break;
+							default:
+									$args['orderby']        = 'ID';
+									$args['order']          = 'DESC';
+								break;
+						}
+						return array( $all_items, get_terms( $matches[2], $args ), $pager_data );
 					}
 				break;
 		}
@@ -1492,6 +1976,242 @@ if( !function_exists( 'otw_installed_plugin' ) ){
 		}
 		
 		return $installed;
+	}
+}
+
+/**
+ * Return possible sort options per type
+ */
+if( !function_exists( 'otw_wml_get_item_sort_options' ) ){
+	function otw_wml_get_item_sort_options( $item_type ){
+	
+		$sort_options = array();
+		
+		switch( $item_type ){
+		
+			case 'page':
+			case 'post':
+					$sort_options['a_z'] = __( 'Alphabetically: A-Z', 'otw_sbm' );
+					$sort_options['z_a'] = __( 'Alphabetically: Z-A', 'otw_sbm' );
+					$sort_options['date_latest'] = __( 'Latest created', 'otw_sbm' );
+					$sort_options['date_oldest'] = __( 'Oldest created', 'otw_sbm' );
+					$sort_options['modified_latest'] = __( 'Latest Modified', 'otw_sbm' );
+					$sort_options['modified_oldest'] = __( 'Oldest Modified', 'otw_sbm' );
+				break;
+			case 'templatehierarchy':
+			case 'pagetemplate':
+			case 'archive':
+			case 'author_archive':
+			case 'userroles':
+			case 'wpmllanguages':
+			case 'bbp_page':
+			case 'buddypress_page':
+					$sort_options['a_z'] = __( 'Alphabetically: A-Z', 'otw_sbm' );
+					$sort_options['z_a'] = __( 'Alphabetically: Z-A', 'otw_sbm' );
+				break;
+			default:
+					if( preg_match( "/^cpt_(.*)$/", $item_type, $matches ) ){
+						$sort_options['a_z'] = __( 'Alphabetically: A-Z', 'otw_sbm' );
+						$sort_options['z_a'] = __( 'Alphabetically: Z-A', 'otw_sbm' );
+						$sort_options['date_latest'] = __( 'Latest created', 'otw_sbm' );
+						$sort_options['date_oldest'] = __( 'Oldest created', 'otw_sbm' );
+						$sort_options['modified_latest'] = __( 'Latest Modified', 'otw_sbm' );
+						$sort_options['modified_oldest'] = __( 'Oldest Modified', 'otw_sbm' );
+					}else{
+						$sort_options['a_z'] = __( 'Alphabetically: A-Z', 'otw_sbm' );
+						$sort_options['z_a'] = __( 'Alphabetically: Z-A', 'otw_sbm' );
+						$sort_options['date_latest'] = __( 'Latest created', 'otw_sbm' );
+						$sort_options['date_oldest'] = __( 'Oldest created', 'otw_sbm' );
+					}
+				break;
+		}
+		return $sort_options;
+	}
+}
+
+/**
+ * Build pager data
+ *
+ * @param integer total items
+ * @param integer total items returned for with limit
+ * @param integer limit
+ * @param integer current page
+ * @return array
+ */
+if( !function_exists( 'otw_wml_get_pager_data' ) ){
+	function otw_wml_get_pager_data( $total_items, $items_limit, $current_page  ){
+		$pager_data = array();
+		
+		$pager_data['current'] = $current_page;
+		$pager_data['links'] = array();
+		$pager_data['links']['next'] = false;
+		$pager_data['links']['prev'] = false;
+		$pager_data['links']['first']= false;
+		$pager_data['links']['last'] = false;
+		$pager_data['links']['page'] = array();
+		$pager_data['first'] = 0;
+		
+		if( $items_limit ){
+			
+			if( ( $total_items %  $items_limit ) == 0 ){
+				$pager_data['pages'] = $total_items / $items_limit;
+			}else{
+				$pager_data['pages'] = $total_items / $items_limit;
+				$pager_data['pages'] = (int)$pager_data['pages'] + 1;
+			}
+			
+			if( $pager_data['current'] >= $pager_data['pages'] ){
+				$pager_data['current'] = 0;
+			}
+			
+			$pager_data['first'] = $pager_data['current'] * $items_limit;
+			$pager_data['last']  = $pager_data['first'] + $items_limit - 1;
+			
+			if( $pager_data['pages'] > 1 ){
+				
+				if( $pager_data['current'] < ( $pager_data['pages'] - 1 ) ){
+					$pager_data['links']['next'] = $pager_data['current'] + 1;
+					$pager_data['links']['last'] = ( $pager_data['pages'] - 1 );
+				}
+			}
+			if( $pager_data['current'] > 0 ){
+				$pager_data['links']['first'] = 0;
+				$pager_data['links']['prev'] = $pager_data['current'] - 1;
+			}
+			
+			$l_size = 3;
+			if( $pager_data['pages'] > 1 ){
+				$pager_data['links']['page'][] = $pager_data['current'];
+				//build page numbe links
+				for( $cP = 1; $cP <= $l_size; $cP++ ){
+					
+					if( ( $pager_data['current'] - $cP ) >= 0 ){
+						$pager_data['links']['page'][] = $pager_data['current'] - $cP;
+					}elseif( ( $pager_data['current'] + $l_size + $cP ) < $pager_data['pages'] ){
+						$pager_data['links']['page'][] = $pager_data['current'] + $l_size + $cP;
+					}
+					
+					if( ( $pager_data['current'] + $cP ) < $pager_data['pages'] ){
+						$pager_data['links']['page'][] = $pager_data['current'] + $cP;
+					}elseif( ( $pager_data['current'] - $l_size - $cP ) >= 0 ){
+						$pager_data['links']['page'][] = $pager_data['current'] - $l_size - $cP;
+					}
+				}
+				sort( $pager_data['links']['page'] );
+			}
+		}
+		return $pager_data;
+	}
+}
+
+
+/**
+ * Array sort
+ */
+if( !function_exists( 'otw_asort' ) ){
+	function otw_asort( $array, $settings ){
+		
+		global $otw_asort_fields;
+		
+		$otw_asort_fields = $settings;
+		uasort( $array, 'otw_asort_compare' );
+		
+		return $array;
+	}
+}
+if( !function_exists( 'otw_asort_compare' ) ){
+	function otw_asort_compare( $item_1, $item_2 ){
+		
+		global $otw_asort_fields;
+		
+		foreach( $otw_asort_fields as $field => $order ){
+		
+			switch( strtolower( gettype( $item_1 ) ) ){
+				
+				case 'object':
+						if( isset( $item_1->$field ) && isset( $item_2->$field ) ){
+							
+							$s_result = strnatcmp( $item_1->$field, $item_2->$field );
+							
+							if( $s_result > 0 ){
+								return ( $order == "ASC" ) ? 1 : -1;
+							}elseif( $s_result < 0 ){
+								return ( $order == "ASC" ) ? -1 : 1;
+							}
+							
+						}elseif( isset( $item_1->$field ) && !isset( $item_2->$field ) ){
+							
+							return ( $order == "ASC" ) ? 1 : -1;
+							
+						}elseif( !isset( $item_1->$field ) && isset( $item_2->$field ) ){
+							
+							return ( $order == "ASC" ) ? -1 : 1;
+							
+						}
+					break;
+			}
+		}
+		return 0;
+	}
+}
+if( !function_exists( 'otw_wml_get_total_not_excluded' ) ){
+	function otw_wml_get_total_not_excluded( $otw_sidebar_id, $widget, $wp_item_type ){
+		
+		global $wp_registered_sidebars;
+		
+		$total_selected = 0;
+		$total_valid    = 0;
+		
+		$items = otw_wml_get_filtered_items( $wp_item_type, '', $otw_sidebar_id, 0 );
+		$valid_items = array();
+		if( count( $items[1] ) ){
+			foreach( $items[1] as $wpItem ){
+				$valid_items[ otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem ) ] = otw_wml_wp_item_attribute( $wp_item_type, 'ID', $wpItem );
+			}
+		}
+		
+		if( isset( $wp_registered_sidebars[ $otw_sidebar_id ]['validfor'][ $wp_item_type ] ) && !isset( $wp_registered_sidebars[ $otw_sidebar_id ]['validfor'][ $wp_item_type ]['all'] ) ){
+			$tmp_valid_items = $valid_items;
+			foreach( $tmp_valid_items as $item_id ){
+				if( !array_key_exists( $item_id, $wp_registered_sidebars[ $otw_sidebar_id ]['validfor'][ $wp_item_type ] ) ){
+					unset( $valid_items[ $item_id ] );
+				}
+			}
+		}
+		$total_valid = count( $valid_items );
+		if( $total_valid ){
+			
+			$otw_widget_settings = get_option( 'otw_widget_settings' );
+			
+			if( isset( $otw_widget_settings[ $otw_sidebar_id ][ $wp_item_type ]['_otw_wc'] ) && isset( $otw_widget_settings[ $otw_sidebar_id ][ $wp_item_type ]['_otw_wc'][$widget] ) ){
+				
+				if( $otw_widget_settings[ $otw_sidebar_id ][ $wp_item_type ]['_otw_wc'][$widget] == 'vis' ){
+					$total_selected = count( $valid_items );
+				}elseif( $otw_widget_settings[ $otw_sidebar_id ][ $wp_item_type ]['_otw_wc'][$widget] == 'invis' ){
+					$total_selected = 0;
+				}
+			}else{
+				if( isset(  $otw_widget_settings[ $otw_sidebar_id ][ $wp_item_type ] ) ){
+					
+					foreach( $otw_widget_settings[ $otw_sidebar_id ][ $wp_item_type ] as $item_type_id => $item_widget_data ){
+						
+						if( $item_type_id == '_otw_wc' ){
+							continue;
+						}
+						if( !in_array( $item_type_id, $valid_items ) ){
+							continue;
+						}
+						
+						if( isset( $item_widget_data['exclude_widgets'] ) && isset( $item_widget_data['exclude_widgets'][ $widget ] ) ){
+							unset(  $valid_items[ $item_type_id ] );
+						}
+					}
+				}
+				$total_selected = count( $valid_items );
+			}
+			
+		}
+		return array( $total_valid, $total_selected );
 	}
 }
 ?>
