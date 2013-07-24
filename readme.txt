@@ -28,9 +28,7 @@ The interface is very intuitive and requires no coding knowledge at all.
 
 
 Upgrade to the full version of [Sidebar and Widget Manager](http://otwthemes.com/product/sidebar-widget-manager-for-wordpress/?utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml) |
-[Demo site](http://otwthemes.com/demos/1ts/?item=Sidebar%20Widget%20Manager&utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml)
-
-[Create responsive layouts in minutes, drag & drop interface, feature rich](http://otwthemes.com/widgetizing-pages-in-wordpress-can-be-even-easier-and-faster?utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml)
+[Demo site](http://otwthemes.com/demos/1ts/?item=Sidebar%20Widget%20Manager&utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml) | [Create responsive layouts in minutes, drag & drop interface, feature rich](http://otwthemes.com/widgetizing-pages-in-wordpress-can-be-even-easier-and-faster?utm_source=wp.org&utm_medium=page&utm_content=upgrade&utm_campaign=wml)
 
 How Widget Manager Light works:
 
