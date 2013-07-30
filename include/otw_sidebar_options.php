@@ -16,7 +16,7 @@ if( isset( $_GET['message'] ) && isset( $messages[ $_GET['message'] ] ) ){
 ?>
 
 <div class="updated"><p>Check out the <a href="http://otwthemes.com/online-documentation-widget-manager-light/?utm_source=wp.org&utm_medium=admin&utm_content=docs&utm_campaign=wml">Online documentation</a> for this plugin<br /><br /> Upgrade to the full version of <a href="http://otwthemes.com/product/sidebar-widget-manager-for-wordpress/?utm_source=wp.org&utm_medium=admin&utm_content=upgrade&utm_campaign=wml">Sidebar and Widget Manager</a> | <a href="http://otwthemes.com/demos/1ts/?item=Sidebar%20Widget%20Manager&utm_source=wp.org&utm_medium=admin&utm_content=upgrade&utm_campaign=wml">Demo site</a><br /><br />
-<a href="http://otwthemes.com/widgetizing-pages-in-wordpress-can-be-even-easier-and-faster?utm_source=wp.org&utm_medium=admin&utm_content=upgrade&utm_campaign=wml">Create responsive layouts in minutes, drag & drop interface, feature rich.</a><br /><br />
+<a href="http://otwthemes.com/widgetizing-pages-in-wordpress-can-be-even-easier-and-faster?utm_source=wp.org&utm_medium=admin&utm_content=site&utm_campaign=wml">Create responsive layouts in minutes, drag & drop interface, feature rich.</a><br /><br />
 Follow on <a href="http://twitter.com/OTWthemes">Twitter</a> | <a href="http://www.facebook.com/pages/OTWthemes/250294028325665">Facebook</a> | <a href="http://www.youtube.com/OTWthemes">YouTube</a> | <a href="https://plus.google.com/117222060323479158835/about">Google+</a></p></div>
 
 <?php if ( $message ) : ?>
