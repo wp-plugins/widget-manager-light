@@ -228,7 +228,7 @@ function otw_wml_sidebar_add_items(){
 	global $wp_wml_int_items;
 	
 	//wpml
-	$active_plugins = get_settings( 'active_plugins' );
+	$active_plugins = get_option( 'active_plugins' );
 	
 	if( in_array( 'sitepress-multilingual-cms/sitepress.php', $active_plugins ) && function_exists( 'icl_get_languages' ) ){
 		$wp_wml_int_items['wpmllanguages'] = array();
