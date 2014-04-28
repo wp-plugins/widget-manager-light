@@ -277,3 +277,18 @@ div.otw_sidebar_wv_item_filter .otw_sidebar_wv_filter_clear a{
 div.otw_sidebar_wv_item_filter.sitem_loading{
 	background: url( ../images/loading.gif ) no-repeat left center #F0F0F0;
 }
+div.otw_exclude_items{
+	margin: 0px;
+}
+div.otw_exclude_items span{
+	vertical-align: top;
+}
+div.otw_exclude_items input[type=text]{
+	width: 100%;
+}
+div.otw_widget_exclude_items input[type=text]{
+	width: 80%;
+}
+div.otw_widget_exclude_items img{
+	display: none;
+}

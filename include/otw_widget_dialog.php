@@ -19,6 +19,8 @@ if( !$sidebar || !$widget ){
 
 global $wp_registered_sidebars, $wp_wml_int_items, $otw_wml_plugin_url;
 
+$with_exclude_items = array( 'postsincategory', 'postsintag', 'post_in_ctx' );
+
 
 //validate that this sidebar exists
 if( !isset( $wp_registered_sidebars[ $sidebar ] ) ){
@@ -38,6 +40,45 @@ if( !isset( $sidebar_widgets[ $sidebar ] ) || !count( $sidebar_widgets[ $sidebar
 	wp_die( __( 'Requested widget is not assinged to this sidebar' ) );
 }
 
+if( isset( $_POST['otw_action'] ) && in_array( $_POST['otw_action'], array( 'exclude_posts' ) ) ){
+
+	$response = 0;
+	
+	$otw_widget_settings = get_option( 'otw_widget_settings' );
+	
+	if( !isset( $otw_widget_settings[ $sidebar ] ) ){
+		$otw_widget_settings[ $sidebar ] = array();
+	}
+	
+	$value = '';
+	
+	if( isset( $_POST['posts'] ) ){
+		$value = trim( $_POST['posts'] );
+	}
+	
+	if( isset( $_POST['item_type'] ) && strlen( $_POST['item_type'] ) ){
+	
+		$item_type = $_POST['item_type'];
+		
+		if( !isset( $otw_widget_settings[ $sidebar ][ $item_type ] ) ){
+			$otw_widget_settings[ $sidebar ][ $item_type ] = array();
+		}
+		
+		if( !isset( $otw_widget_settings[ $sidebar ][ $item_type ]['_otw_ep'] ) || !is_array( $otw_widget_settings[ $sidebar ][ $item_type ]['_otw_ep'] ) ){
+			$otw_widget_settings[ $sidebar ][ $item_type ]['_otw_ep'] = array();
+		}
+		$otw_widget_settings[ $sidebar ][ $item_type ]['_otw_ep'][ $widget ] = $value;
+		
+		$response = 1;
+		
+	}
+	update_option( 'otw_widget_settings', $otw_widget_settings );
+	
+	echo $response;
+	
+	return;
+	
+}
 if( isset( $_POST['otw_action'] ) && in_array( $_POST['otw_action'], array( 'vis', 'invis' ) ) ){
 
 	if( isset( $_POST['item_type'] ) ){
@@ -202,6 +243,8 @@ if( isset( $_POST['otw_action'] ) && ( $_POST['otw_action'] == 'update' ) ){
 	}
 	return;
 }
+$otw_widget_settings = get_option( 'otw_widget_settings' );
+
 /** set class name for all selection links
  *
  *  @param string $type vis|invis
@@ -301,7 +344,22 @@ foreach( $wp_wml_int_items as $wp_item_type => $wp_item_data ){
 						</div>
 						<div class="lf_items">
 						</div>
-						
+						<?php
+							$exclude_type = $wp_item_type;
+							
+							if( preg_match( "/^post_in_ctx_(.*)$/", $exclude_type ) ){
+								$exclude_type = 'post_in_ctx';
+							}
+							
+							if( in_array( $exclude_type, $with_exclude_items ) ){?>
+								<div class="otw_widget_exclude_items">
+									<span><?php _e( 'Exclude posts from the above result-set by given id or slug. Separate with commas.' ); ?></span><br />
+									<input type="text" id="otw_exclude_posts_<?php echo $wp_item_type ?>"  name="otw_exclude_posts_<?php echo $wp_item_type ?>" value="<?php echo otw_wp_item_widget_exclude( 'post', $sidebar, $widget, $wp_item_type, $otw_widget_settings ) ?>" />
+									<input type="button" id="otw_save_excluded_<?php echo $wp_item_type ?>" value="<?php _e( 'Save', 'otw_sbm' ) ?>" class="button otw_save_excluded" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>" />
+									<img src="<?php echo $otw_wml_plugin_url ?>/images/loading.gif" border="0" id="otw_exclude_loading_<?php echo $wp_item_type ?>" />
+								</div>
+						<?php }?>
+
 					</div>
 					
 				</div>

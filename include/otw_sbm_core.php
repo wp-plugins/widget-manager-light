@@ -150,7 +150,9 @@ if( !function_exists( 'otw_filter_siderbar_widgets' ) ){
 							$filtered = true;
 							foreach( $wp_registered_sidebars[ $tmp_index ]['widgets_settings'][ $object ]['_otw_wc'] as $tmp_widget => $tmp_widget_value ){
 								if( $tmp_widget_value == 'vis' ){
-									$filtered_widgets[] = $tmp_widget;
+									if( !otw_is_widget_item_excluded( $tmp_index, $object, $tmp_widget, $wp_registered_sidebars ) ){
+										$filtered_widgets[] = $tmp_widget;
+									}
 									$otw_wc_visible[ $tmp_widget ] = $tmp_widget;
 								}elseif( $tmp_widget_value == 'invis' ){
 									$otw_wc_invisible[ $tmp_widget ] = $tmp_widget;
@@ -164,7 +166,10 @@ if( !function_exists( 'otw_filter_siderbar_widgets' ) ){
 								if( !array_key_exists( $tmp_widget, $wp_registered_sidebars[ $tmp_index ]['widgets_settings'][ $object ][ $object_id ]['exclude_widgets'] ) ){
 									
 									if( !array_key_exists( $tmp_widget, $otw_wc_invisible ) && !array_key_exists( $tmp_widget, $otw_wc_visible )  ){
-										$filtered_widgets[] = $tmp_widget;
+										
+										if( !otw_is_widget_item_excluded( $tmp_index, $object, $tmp_widget, $wp_registered_sidebars ) ){
+											$filtered_widgets[] = $tmp_widget;
+										}
 									}
 								}
 							}
@@ -173,7 +178,9 @@ if( !function_exists( 'otw_filter_siderbar_widgets' ) ){
 								$filtered = true;
 								
 								if( !array_key_exists( $tmp_widget, $otw_wc_invisible ) && !array_key_exists( $tmp_widget, $otw_wc_visible )  ){
-									$filtered_widgets[] = $tmp_widget;
+									if( !otw_is_widget_item_excluded( $tmp_index, $object, $tmp_widget, $wp_registered_sidebars ) ){
+										$filtered_widgets[] = $tmp_widget;
+									}
 								}
 							}
 						}
@@ -183,7 +190,6 @@ if( !function_exists( 'otw_filter_siderbar_widgets' ) ){
 						}
 					}
 				}
-				
 				if( isset( $filtered_widgets ) && is_array( $filtered_widgets ) && count( $filtered_widgets ) ){
 					$collected_widgets = array();
 					foreach( $filtered_widgets as $widget_order => $widget_name ){
@@ -2212,6 +2218,90 @@ if( !function_exists( 'otw_wml_get_total_not_excluded' ) ){
 			
 		}
 		return array( $total_valid, $total_selected );
+	}
+}
+
+if( !function_exists( 'otw_wp_item_widget_exclude' ) ){
+	function otw_wp_item_widget_exclude( $exclude_object, $sidebar, $widget, $type, $widget_settings ){
+		
+		$list = '';
+		
+		switch( $exclude_object ){
+		
+			case 'post':
+					if( isset( $widget_settings[ $sidebar ] ) && isset( $widget_settings[ $sidebar ][ $type ] ) && isset( $widget_settings[ $sidebar ][ $type ]['_otw_ep'] ) && is_array( $widget_settings[ $sidebar ][ $type ]['_otw_ep'] ) && isset( $widget_settings[ $sidebar ][ $type ]['_otw_ep'][ $widget ] ) ){
+					
+						$list = $widget_settings[ $sidebar ][ $type ]['_otw_ep'][ $widget ];
+					}
+				break;
+		}
+		return $list;
+	}
+}
+if( !function_exists( 'otw_is_widget_item_excluded' ) ){
+	function otw_is_widget_item_excluded( $sidebar_index, $object, $widget, $wp_registered_sidebars ){
+	
+		$result = false;
+		
+		if( isset( $wp_registered_sidebars[ $sidebar_index ] ) && isset( $wp_registered_sidebars[ $sidebar_index ]['widgets_settings'] ) && isset( $wp_registered_sidebars[ $sidebar_index ]['widgets_settings'][ $object ] ) ){
+			
+			if( is_single() ){
+			
+				if( isset( $wp_registered_sidebars[ $sidebar_index ]['widgets_settings'][ $object ]['_otw_ep'] ) && is_array( $wp_registered_sidebars[ $sidebar_index ]['widgets_settings'][ $object ]['_otw_ep'] ) && isset( $wp_registered_sidebars[ $sidebar_index ]['widgets_settings'][ $object ]['_otw_ep'][ $widget ] ) && $wp_registered_sidebars[ $sidebar_index ]['widgets_settings'][ $object ]['_otw_ep'][ $widget ] ){
+					
+					global $wp_query;
+					
+					$query_object = $wp_query->get_queried_object();
+					
+					$post_id = $query_object->ID;
+					
+					if( !otw_get_sidebar_from_excluded_items( 'post', $post_id, $wp_registered_sidebars[ $sidebar_index ]['widgets_settings'][ $object ]['_otw_ep'][ $widget ] ) ){
+						$result = true;
+					}
+				}
+			}
+		
+		}
+		return $result;
+	}
+}
+
+/**
+ * Resolve excluded items give list of ids or slugs
+ */
+if( !function_exists( 'otw_get_sidebar_from_excluded_items' ) ){
+	function otw_get_sidebar_from_excluded_items( $object, $object_id, $items ){
+		
+		$valid_sidebar = true;
+		
+		$excluded_items = array();
+		
+		if( isset( $items ) && strlen( $items ) ){
+			$excluded_items = explode( ",", $items );
+			
+			if( count( $excluded_items ) ){
+				$excluded_items = array_map( 'trim', $excluded_items );
+			}
+		}
+		
+		if( in_array( $object_id, $excluded_items ) ){
+			$valid_sidebar = false;
+		}else{
+			switch( $object ){
+				case 'post':
+						$post_info = get_post( $object_id );
+						
+						if( isset( $post_info->post_name ) ){
+							
+							if( in_array( $post_info->post_name, $excluded_items ) ){
+								$valid_sidebar = false;
+							}
+						}
+					break;
+			}
+		}
+		return $valid_sidebar;
+		
 	}
 }
 ?>

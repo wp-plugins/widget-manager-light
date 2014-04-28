@@ -10,6 +10,40 @@ function otw_init_appearence_dialog(){
 		}
 	} );
 	
+	jQuery( '.otw_save_excluded' ).click( function(){
+	
+		var button_id = this.id;
+		
+		var button_matches = false;
+		
+		if( button_matches = button_id.match( /^otw_save_excluded_(.*)$/ ) ){
+			
+			var exclude_input = jQuery( '#otw_exclude_posts_' + button_matches[1] );
+			
+			var loading_img = jQuery( '#otw_exclude_loading_' + button_matches[1] );
+			
+			if( exclude_input.size() ){
+				
+				var lParts = jQuery( this ).attr( 'rel' ).split( '|' );
+				
+				var req_url = 'admin-ajax.php?action=otw_wml_widget_dialog&sidebar=' + lParts[0] + '&widget=' + lParts[1];
+				
+				loading_img.show();
+				
+				var settings = {
+					url: req_url,
+					type: 'post',
+					data: '&otw_action=exclude_posts&posts=' + exclude_input.val() + '&item_type=' + lParts[2],
+					success:function( data ){
+						loading_img.hide();
+					}
+				};
+				
+				jQuery.ajax( settings );
+			}
+		}
+	} );
+	
 	jQuery( 'p.sitem_selected > a, p.sitem_notselected > a').click( function(){
 		otw_sbm_click_app_item( this );
 	});
