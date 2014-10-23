@@ -3,7 +3,7 @@ Contributors: OTWthemes
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQH6CMTR42KS2
 Tags: admin, conditional tags, Context, filter, hide widgets, show widget, widget, sidebar, widget area, custom layout, relevant content, sidebars, widgets, logic
 Requires at least: 3.0
-Tested up to: 3.9
+Tested up to: 4.0
 Stable tag: 1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -32,10 +32,10 @@ Upgrade to the full version of [Sidebar and Widget Manager](http://otwthemes.com
 
 How Widget Manager Light works:
 
-* Go to Appearance -> Widgets
-* Select a Widget in any sidebar
-* Click on the Set Visibility button
-* Select where to display on or hide from 
+* Go to Appearance -> Widgets.
+* Select a Widget in any sidebar.
+* Click on the Set Visibility button.
+* Select where to display on or hide from.
  
 Follow on [Twitter](http://twitter.com/OTWthemes) |
 [Facebook](http://www.facebook.com/pages/OTWthemes/250294028325665) |
