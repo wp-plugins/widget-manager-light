@@ -356,7 +356,7 @@ foreach( $wp_wml_int_items as $wp_item_type => $wp_item_data ){
 									<span><?php _e( 'Exclude posts from the above result-set by given id or slug. Separate with commas.' ); ?></span><br />
 									<input type="text" id="otw_exclude_posts_<?php echo $wp_item_type ?>"  name="otw_exclude_posts_<?php echo $wp_item_type ?>" value="<?php echo otw_wp_item_widget_exclude( 'post', $sidebar, $widget, $wp_item_type, $otw_widget_settings ) ?>" />
 									<input type="button" id="otw_save_excluded_<?php echo $wp_item_type ?>" value="<?php _e( 'Save', 'otw_sbm' ) ?>" class="button otw_save_excluded" rel="<?php echo $sidebar?>|<?php echo $widget?>|<?php echo $wp_item_type?>" />
-									<img src="<?php echo $otw_wml_plugin_url ?>/images/loading.gif" border="0" id="otw_exclude_loading_<?php echo $wp_item_type ?>" />
+									<img src="<?php echo $otw_wml_plugin_url ?>images/loading.gif" border="0" id="otw_exclude_loading_<?php echo $wp_item_type ?>" />
 								</div>
 						<?php }?>
 

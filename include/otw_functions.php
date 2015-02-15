@@ -64,7 +64,7 @@ function otw_wml_plugin_init(){
 		require_once( plugin_dir_path( __FILE__ ).'/otw_process_actions.php' );
 	}else{
 	
-		wp_register_style('otw_sbm.css', $otw_wml_plugin_url.'/css/otw_sbm.css' );
+		wp_register_style('otw_sbm.css', $otw_wml_plugin_url.'css/otw_sbm.css' );
 		wp_enqueue_style('otw_sbm.css');
 	}
 }
