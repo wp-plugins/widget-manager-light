@@ -12,7 +12,7 @@ Widget Manager lets you control on which pages widgets appear via nice and easy 
 
 == Description ==
 
-Widget Manager gives you full control over widget visibility via nice and easy interface.
+Widget Manager gives you full control over widget visibility via nice and intuitive interface.
 
 Every widget can now be displayed on or hidden from one or few pages. Display relevent content on your pages, posts, categories, tags, archives, custom post types, custom taxonomies, page templates, WordPress service pages, etc.. 
 
