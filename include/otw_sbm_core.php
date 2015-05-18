@@ -1016,6 +1016,7 @@ if (!function_exists( "otw_wml_get_filtered_items" )){
 					
 					$pager_data = otw_wml_get_pager_data( $all_items, $displayed_items, $current_page );
 					
+					$args['offset'] = $pager_data['first'];
 					$args['posts_per_page'] = ($displayed_items)?$displayed_items:-1;
 					
 					switch( $order )

@@ -4,7 +4,7 @@ Plugin Name: Widget Manager Light
 Plugin URI: http://otwthemes.com/?utm_source=wp.org&utm_medium=admin&utm_content=site&utm_campaign=wml
 Description:  Get control over widgets visibility. You can now customize each page with specific widgets that are relative to the content on that page. No coding required.
 Author: OTWthemes.com
-Version: 1.10
+Version: 1.11
 Author URI: http://otwthemes.com/?utm_source=wp.org&utm_medium=admin&utm_content=site&utm_campaign=wml
 */
 $wp_wml_int_items = array(
